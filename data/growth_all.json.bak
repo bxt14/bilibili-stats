@@ -1,0 +1,752 @@
+[
+  {
+    "timestamp": 1775923200,
+    "date": "2026-04-12",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7841725
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 0
+      }
+    }
+  },
+  {
+    "timestamp": 1776045600,
+    "date": "2026-04-13",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7842167
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 0
+      }
+    }
+  },
+  {
+    "timestamp": 1776132000,
+    "date": "2026-04-14",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7843109
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 0
+      }
+    }
+  },
+  {
+    "timestamp": 1776218400,
+    "date": "2026-04-15",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7844021
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2171257
+      }
+    }
+  },
+  {
+    "timestamp": 1776301200,
+    "date": "2026-04-16",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7844737
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2172118
+      }
+    }
+  },
+  {
+    "timestamp": 1776387600,
+    "date": "2026-04-17",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7845780
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2172958
+      }
+    }
+  },
+  {
+    "timestamp": 1776474000,
+    "date": "2026-04-18",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7847669
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2174187
+      }
+    }
+  },
+  {
+    "timestamp": 1776560400,
+    "date": "2026-04-19",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7851063
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2175849
+      }
+    }
+  },
+  {
+    "timestamp": 1776646800,
+    "date": "2026-04-20",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7853329
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2177167
+      }
+    }
+  },
+  {
+    "timestamp": 1776733200,
+    "date": "2026-04-21",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7854324
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2177700
+      }
+    }
+  },
+  {
+    "timestamp": 1776819600,
+    "date": "2026-04-22",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7855217
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2178110
+      }
+    }
+  },
+  {
+    "timestamp": 1776906000,
+    "date": "2026-04-23",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7856076
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2178665
+      }
+    }
+  },
+  {
+    "timestamp": 1776992400,
+    "date": "2026-04-24",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7857057
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2179170
+      }
+    }
+  },
+  {
+    "timestamp": 1777078800,
+    "date": "2026-04-25",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7866219
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2179954
+      }
+    }
+  },
+  {
+    "timestamp": 1777165200,
+    "date": "2026-04-26",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7877465
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2181313
+      }
+    }
+  },
+  {
+    "timestamp": 1777251600,
+    "date": "2026-04-27",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7882578
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2182614
+      }
+    }
+  },
+  {
+    "timestamp": 1777338000,
+    "date": "2026-04-28",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7884255
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2183202
+      }
+    }
+  },
+  {
+    "timestamp": 1777424400,
+    "date": "2026-04-29",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7885924
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2183746
+      }
+    }
+  },
+  {
+    "timestamp": 1777510800,
+    "date": "2026-04-30",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7887894
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2188380
+      }
+    }
+  },
+  {
+    "timestamp": 1777597200,
+    "date": "2026-05-01",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7891926
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2192748
+      }
+    }
+  },
+  {
+    "timestamp": 1777683600,
+    "date": "2026-05-02",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7895443
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2196576
+      }
+    }
+  },
+  {
+    "timestamp": 1777770000,
+    "date": "2026-05-03",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7898397
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2199043
+      }
+    }
+  },
+  {
+    "timestamp": 1777856400,
+    "date": "2026-05-04",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7901040
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2201140
+      }
+    }
+  },
+  {
+    "timestamp": 1777942800,
+    "date": "2026-05-05",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7903309
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2203011
+      }
+    }
+  },
+  {
+    "timestamp": 1778029200,
+    "date": "2026-05-06",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7905550
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2204783
+      }
+    }
+  },
+  {
+    "timestamp": 1778115600,
+    "date": "2026-05-07",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7906502
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2205520
+      }
+    }
+  },
+  {
+    "timestamp": 1778202000,
+    "date": "2026-05-08",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7907621
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2206268
+      }
+    }
+  },
+  {
+    "timestamp": 1778288400,
+    "date": "2026-05-09",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7908602
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2206817
+      }
+    }
+  },
+  {
+    "timestamp": 1778374800,
+    "date": "2026-05-10",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7910289
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2207717
+      }
+    }
+  },
+  {
+    "timestamp": 1778461200,
+    "date": "2026-05-11",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7912705
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2208826
+      }
+    }
+  },
+  {
+    "timestamp": 1778547600,
+    "date": "2026-05-12",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7913631
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2209327
+      }
+    }
+  },
+  {
+    "timestamp": 1778634000,
+    "date": "2026-05-13",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7914457
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2209832
+      }
+    }
+  },
+  {
+    "timestamp": 1778720400,
+    "date": "2026-05-14",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7915277
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2210266
+      }
+    }
+  },
+  {
+    "timestamp": 1778806800,
+    "date": "2026-05-15",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7918938
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2210878
+      }
+    }
+  },
+  {
+    "timestamp": 1778893200,
+    "date": "2026-05-16",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7922823
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2212061
+      }
+    }
+  },
+  {
+    "timestamp": 1778979600,
+    "date": "2026-05-17",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7927723
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2213955
+      }
+    }
+  },
+  {
+    "timestamp": 1779066000,
+    "date": "2026-05-18",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7930686
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2215652
+      }
+    }
+  },
+  {
+    "timestamp": 1779152400,
+    "date": "2026-05-19",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7931682
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2216845
+      }
+    }
+  },
+  {
+    "timestamp": 1779238800,
+    "date": "2026-05-20",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7932869
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2218399
+      }
+    }
+  },
+  {
+    "timestamp": 1779325200,
+    "date": "2026-05-21",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7933877
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2219575
+      }
+    }
+  },
+  {
+    "timestamp": 1779411600,
+    "date": "2026-05-22",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7934859
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2220442
+      }
+    }
+  },
+  {
+    "timestamp": 1779498000,
+    "date": "2026-05-23",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7936255
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2221449
+      }
+    }
+  },
+  {
+    "timestamp": 1779584400,
+    "date": "2026-05-24",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7938539
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2223084
+      }
+    }
+  },
+  {
+    "timestamp": 1779670800,
+    "date": "2026-05-25",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7940350
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2224447
+      }
+    }
+  },
+  {
+    "timestamp": 1779767840,
+    "date": "2026-05-26",
+    "time": "11:57",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7941100
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2225105
+      }
+    }
+  },
+  {
+    "timestamp": 1779896710,
+    "date": "2026-05-27",
+    "time": "23:45",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7942168
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2226119
+      }
+    }
+  },
+  {
+    "timestamp": 1779960171,
+    "date": "2026-05-28",
+    "time": "17:22",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7942378
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2226348
+      }
+    }
+  },
+  {
+    "timestamp": 1780069874,
+    "date": "2026-05-29",
+    "time": "23:51",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7957650
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2227352
+      }
+    }
+  },
+  {
+    "timestamp": 1780128507,
+    "date": "2026-05-30",
+    "time": "16:08",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7977149
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2228483
+      }
+    }
+  },
+  {
+    "timestamp": 1780189204,
+    "date": "2026-05-31",
+    "time": "09:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7987229
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2229628
+      }
+    }
+  }
+]

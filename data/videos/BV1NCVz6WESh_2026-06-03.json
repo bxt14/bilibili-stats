@@ -1,0 +1,38 @@
+[
+  {
+    "timestamp": 1780495162,
+    "date": "2026-06-03",
+    "time": "21:59",
+    "view": 764511,
+    "like": 40142,
+    "coin": 2052,
+    "favorite": 7572,
+    "reply": 1078,
+    "danmaku": 826,
+    "share": 623
+  },
+  {
+    "timestamp": 1780495204,
+    "date": "2026-06-03",
+    "time": "22:00",
+    "view": 764511,
+    "like": 40171,
+    "coin": 2054,
+    "favorite": 7582,
+    "reply": 1079,
+    "danmaku": 828,
+    "share": 625
+  },
+  {
+    "timestamp": 1780498804,
+    "date": "2026-06-03",
+    "time": "23:00",
+    "view": 811451,
+    "like": 43066,
+    "coin": 2146,
+    "favorite": 8099,
+    "reply": 1106,
+    "danmaku": 859,
+    "share": 660
+  }
+]

@@ -1,0 +1,2 @@
+scripts/cron_hourly.sh text eol=lf
+scripts/cron_daily.sh text eol=lf
