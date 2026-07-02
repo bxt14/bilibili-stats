@@ -8,7 +8,7 @@
   "shares": 28000,
   "publish_time": "2026-06-10 17:30",
   "source_url": "https://www.douyin.com/video/7646333025348767012",
-  "fetch_time": "2026-07-03 06:00:18",
+  "fetch_time": "2026-07-03 07:00:18",
   "history": [
     {
       "fetch_time": "2026-06-10 17:49:13",
@@ -3476,6 +3476,14 @@
     },
     {
       "fetch_time": "2026-07-03 06:00:18",
+      "likes": 313000,
+      "comments": 4675,
+      "collects": 33000,
+      "shares": 28000,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-07-03 07:00:18",
       "likes": 313000,
       "comments": 4675,
       "collects": 33000,
