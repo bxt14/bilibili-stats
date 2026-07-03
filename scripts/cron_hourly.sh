@@ -22,7 +22,7 @@ if [ -f "$LOCKFILE" ]; then
         else
             git commit -m "hourly: videos only (douyin locked)" >> "$LOG" 2>&1
             git pull --rebase >> "$LOG" 2>&1
-            git push >> "$LOG" 2>&1
+            git push origin main >> "$LOG" 2>&1
         fi
         exit 0
     else
@@ -53,7 +53,7 @@ if ! curl -s --max-time 5 http://localhost:9222/json/version > /dev/null 2>&1; t
         else
             git commit -m "hourly: videos only (douyin skipped)" >> "$LOG" 2>&1
             git pull --rebase >> "$LOG" 2>&1
-            git push >> "$LOG" 2>&1
+            git push origin main >> "$LOG" 2>&1
         fi
         exit 0
     fi
@@ -117,5 +117,5 @@ if git diff --cached --quiet; then
 else
     git commit -m "hourly: videos+douyin" >> "$LOG" 2>&1
     git pull --rebase >> "$LOG" 2>&1
-    git push >> "$LOG" 2>&1
+    git push origin main >> "$LOG" 2>&1
 fi
