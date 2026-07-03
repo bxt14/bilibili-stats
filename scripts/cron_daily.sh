@@ -48,5 +48,5 @@ if git diff --cached --quiet; then
 else
     git commit -m "daily: fans+videos+douyin" >> "$LOG" 2>&1
     git pull --rebase >> "$LOG" 2>&1
-    git push >> "$LOG" 2>&1
+    git push origin main >> "$LOG" 2>&1
 fi
