@@ -99,9 +99,9 @@ def generate_html():
             cover = video['cover']
             title = escape_html(video['title'])
         
-        # 监控中视频显示增长
+        # 有历史数据的视频显示增长
         growth = ''
-        if is_monitoring and bvid in video_datasets and len(video_datasets[bvid]['data']) > 1:
+        if bvid in video_datasets and len(video_datasets[bvid]['data']) > 1:
             first = video_datasets[bvid]['data'][0]
             total_growth = latest['view'] - first['view']
             growth = f'<div class="growth-badge">+{format_number(total_growth)}</div>'
@@ -144,8 +144,9 @@ def generate_html():
         if honor_tags:
             honor_tags_html = f'<div class="honor-tags">{"".join(honor_tags)}</div>'
         
-        onclick = f'onclick="showVideoChart(\'{bvid}\')"' if is_monitoring else ''
-        cursor_class = 'clickable' if is_monitoring else ''
+        has_chart_data = bvid in video_datasets
+        onclick = f'onclick="showVideoChart(\'{bvid}\')"' if has_chart_data else ''
+        cursor_class = 'clickable' if has_chart_data else ''
         
         card_html = f"""
     <div class="video-card {status_class} {cursor_class}" {onclick}>
