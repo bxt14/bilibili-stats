@@ -47,19 +47,18 @@ def generate_html():
     # 加载所有2026年视频
     all_videos = load_json('all_2026_videos.json') or []
     
-    # 加载每个监控视频的详细数据
+    # 加载所有有历史数据的视频（包括已归档）
     video_datasets = {}
     for video in all_videos:
-        if video.get('is_monitoring'):
-            bvid = video['bvid']
-            data_file = os.path.join(VIDEO_DATA_DIR, f'{bvid}_all.json')
-            meta_file = os.path.join(VIDEO_DATA_DIR, f'{bvid}_meta.json')
-            
-            if os.path.exists(data_file) and os.path.exists(meta_file):
-                with open(data_file, 'r', encoding='utf-8') as f:
-                    video_datasets[bvid] = {'data': json.load(f)}
-                with open(meta_file, 'r', encoding='utf-8') as f:
-                    video_datasets[bvid]['meta'] = json.load(f)
+        bvid = video['bvid']
+        data_file = os.path.join(VIDEO_DATA_DIR, f'{bvid}_all.json')
+        meta_file = os.path.join(VIDEO_DATA_DIR, f'{bvid}_meta.json')
+        
+        if os.path.exists(data_file) and os.path.exists(meta_file):
+            with open(data_file, 'r', encoding='utf-8') as f:
+                video_datasets[bvid] = {'data': json.load(f)}
+            with open(meta_file, 'r', encoding='utf-8') as f:
+                video_datasets[bvid]['meta'] = json.load(f)
     
     # 加载抖音视频数据
     DOUYIN_VIDEO_DIR = os.path.join(DATA_DIR, 'douyin_videos')
