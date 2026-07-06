@@ -12,7 +12,7 @@ DAILY_CRON_HOUR = 8  # 日级cron在8:30运行，8点前不应期待当天数据
 
 def check_hourly_log():
     """检查小时级日志是否在2小时内有更新"""
-    log_path = "/tmp/hourly_sync.log"
+    log_path = "/tmp/.fuse_data/所有对话/主对话/bilibili-stats/logs/hourly_sync.log"
     if not os.path.exists(log_path):
         return False, "hourly_sync.log 不存在"
     mtime = os.path.getmtime(log_path)
