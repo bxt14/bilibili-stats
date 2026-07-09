@@ -4,11 +4,11 @@
   "author": "毕导",
   "likes": 36000,
   "comments": 686,
-  "collects": 2318,
-  "shares": 1908,
+  "collects": 2330,
+  "shares": 1915,
   "publish_time": "2026-07-09 17:18",
   "source_url": "https://www.douyin.com/video/7660416023220260122",
-  "fetch_time": "2026-07-10 06:01:11",
+  "fetch_time": "2026-07-10 07:01:09",
   "history": [
     {
       "fetch_time": "2026-07-09 17:23:00",
@@ -104,6 +104,14 @@
       "comments": 686,
       "collects": 2318,
       "shares": 1908,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-07-10 07:01:09",
+      "likes": 36000,
+      "comments": 686,
+      "collects": 2330,
+      "shares": 1915,
       "plays": 0
     }
   ]
