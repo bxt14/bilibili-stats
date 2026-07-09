@@ -1,1 +1,37 @@
-[]
+[
+  {
+    "bvid": "BV1xPL96PEU3",
+    "title": "为什么水可以很滑，也可以很涩？",
+    "owner": "毕的二阶导",
+    "days_published": 20.9,
+    "freq": "daily"
+  },
+  {
+    "bvid": "BV1NGT76CEKn",
+    "title": "啊？铁丝网也能托住一杯水？",
+    "owner": "毕的二阶导",
+    "days_published": 5.9,
+    "freq": "daily"
+  },
+  {
+    "bvid": "BV1quVd6DEA2",
+    "title": "大海为什么是蓝色的？两个诺奖得主吵起来了……",
+    "owner": "毕的二阶导",
+    "days_published": 28.9,
+    "freq": "daily"
+  },
+  {
+    "bvid": "BV1LRVZ6ZEdz",
+    "title": "我统计了公司所有人的排便时间，发现了一个惊人的事实......",
+    "owner": "毕的二阶导",
+    "days_published": 26.9,
+    "freq": "daily"
+  },
+  {
+    "bvid": "BV1UmjR62EfZ",
+    "title": "你从小学的热胀冷缩，其实只对了一半？？",
+    "owner": "毕的二阶导",
+    "days_published": 14.6,
+    "freq": "daily"
+  }
+]
