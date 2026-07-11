@@ -1,4 +1,5 @@
 #!/bin/bash
+export NODE_NO_WARNINGS=1
 export LARKSUITE_CLI_CONFIG_DIR="/tmp/.fuse_data/所有对话/主对话/.feishu_cli"
 export LARKSUITE_CLI_DATA_DIR="/tmp/.fuse_data/所有对话/主对话/.feishu_cli"
 cd /tmp/.fuse_data/所有对话/主对话/bilibili-stats
@@ -28,7 +29,7 @@ python3 -u scripts/cleanup_chrome_tabs.py >> "$LOG" 2>&1
 # 创建锁文件
 date +%s > "$LOCKFILE"
 
-timeout 180 python3 -u scripts/fetch_douyin_batch.py >> "$LOG" 2>&1
+timeout 300 python3 -u scripts/fetch_douyin_batch.py --mode daily >> "$LOG" 2>&1
 DOUYIN_EXIT=$?
 
 # 删除锁文件
