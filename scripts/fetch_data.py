@@ -545,6 +545,19 @@ def sync_all_2026_videos():
                     updated = True
                     print(f"  已添加: {video_info['title']}")
     
+    # 自动更新 is_monitoring 状态：超过30天的视频自动归档
+    now = time.time()
+    for v in all_videos:
+        if not isinstance(v, dict):
+            continue
+        days = (now - v.get('created', 0)) / 86400
+        should_monitor = days <= DAILY_FREQ_DAYS  # DAILY_FREQ_DAYS = 30
+        if v.get('is_monitoring', False) != should_monitor:
+            old = v.get('is_monitoring', False)
+            v['is_monitoring'] = should_monitor
+            updated = True
+            print(f"  归档状态更新: {v['bvid']} {old} -> {should_monitor} ({days:.1f}天)")
+    
     if updated:
         # 按发布时间倒序排列
         all_videos.sort(key=lambda v: v.get('created', 0), reverse=True)
