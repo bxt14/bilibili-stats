@@ -1,7 +1,7 @@
 #!/bin/bash
 export NODE_NO_WARNINGS=1
-export LARKSUITE_CLI_CONFIG_DIR="/tmp/.fuse_data/所有对话/主对话/.feishu_cli"
-export LARKSUITE_CLI_DATA_DIR="/tmp/.fuse_data/所有对话/主对话/.feishu_cli"
+export LARKSUITE_CLI_CONFIG_DIR="/app/data/所有对话/主对话/.feishu_cli"
+export LARKSUITE_CLI_DATA_DIR="/app/data/所有对话/主对话/.feishu_cli"
 cd /tmp/.fuse_data/所有对话/主对话/bilibili-stats
 
 LOG=/tmp/.fuse_data/所有对话/主对话/bilibili-stats/logs/hourly_sync.log

@@ -68,6 +68,46 @@ def check_douyin_data():
         return False, f"部分活跃抖音视频超过2小时未更新: {[f'{f[0]}({f[1]:.1f}h)' for f in stale_files[:3]]}"
     return True, "抖音数据正常更新中"
 
+def check_douyin_fans():
+    """检查抖音粉丝数据是否近期更新（每日cron同步一次，24小时内应有更新）"""
+    info_file = os.path.join(DATA_DIR, 'douyin_info.json')
+    growth_file = os.path.join(DATA_DIR, 'douyin_growth.json')
+    
+    if not os.path.exists(info_file):
+        return False, 'douyin_info.json 不存在'
+    
+    try:
+        with open(info_file, 'r', encoding='utf-8') as f:
+            info = json.load(f)
+        
+        update_time_str = info.get('update_time', '')
+        if not update_time_str:
+            return False, 'douyin_info.json 缺少 update_time 字段'
+        
+        # 解析更新时间 "YYYY-MM-DD HH:MM"
+        update_dt = datetime.strptime(update_time_str, '%Y-%m-%d %H:%M')
+        age_hours = (datetime.now() - update_dt).total_seconds() / 3600
+        
+        if age_hours > 26:  # 留2小时余量（daily cron 8:30运行）
+            return False, f'抖音粉丝数据已 {age_hours:.1f} 小时未更新（最后更新: {update_time_str}）'
+        
+        # 同时检查 growth.json 最新记录的日期
+        if os.path.exists(growth_file):
+            with open(growth_file, 'r', encoding='utf-8') as f:
+                growth = json.load(f)
+            if growth:
+                latest_date = growth[-1].get('date', '')
+                today = datetime.now().strftime('%Y-%m-%d')
+                yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+                if latest_date not in (today, yesterday):
+                    return False, f'抖音增长数据停在 {latest_date}（预期 {yesterday} 或 {today}）'
+        
+        fans = info.get('fans', 0)
+        return True, f'抖音粉丝数据正常（{fans:,} 粉丝，更新于 {update_time_str}）'
+    
+    except (json.JSONDecodeError, ValueError, TypeError) as e:
+        return False, f'douyin_info.json 解析失败: {e}'
+
 def check_bilibili_data():
     """检查B站视频数据是否有近期更新"""
     videos_dir = os.path.join(DATA_DIR, "videos")
@@ -93,7 +133,8 @@ def check_bilibili_data():
 if __name__ == "__main__":
     checks = [
         ("小时级采集", check_hourly_log),
-        ("抖音数据", check_douyin_data),
+        ("抖音视频", check_douyin_data),
+        ("抖音粉丝", check_douyin_fans),
         ("B站数据", check_bilibili_data),
     ]
     
