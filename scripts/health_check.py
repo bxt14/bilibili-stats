@@ -22,13 +22,14 @@ def check_hourly_log():
     return True, f"hourly_sync.log 正常（{age_hours:.1f}小时前更新）"
 
 def check_douyin_data():
-    """检查活跃抖音视频数据是否在2小时内有更新（仅检查发布30天内的视频）"""
+    """检查活跃抖音视频数据是否按频率正常更新（hourly:2h阈值, daily:26h阈值）"""
     douyin_dir = os.path.join(DATA_DIR, "douyin_videos")
     if not os.path.exists(douyin_dir):
         return False, "douyin_videos 目录不存在"
     
     cutoff = datetime.now() - timedelta(days=30)
-    active_files = []
+    now = datetime.now()
+    active_files = []  # (fpath, threshold_hours)
     
     for f in os.listdir(douyin_dir):
         if not f.endswith('.json'):
@@ -48,7 +49,13 @@ def check_douyin_data():
                 else:
                     publish_dt = None
                 if publish_dt and publish_dt > cutoff:
-                    active_files.append(fpath)
+                    # 根据发布时间判断频率级别
+                    days_since_publish = (now - publish_dt).total_seconds() / 86400
+                    if days_since_publish <= 5:
+                        threshold = 2  # hourly级别
+                    else:
+                        threshold = 26  # daily级别（每天8:30采集，留余量）
+                    active_files.append((fpath, threshold))
         except (json.JSONDecodeError, KeyError):
             continue
     
@@ -56,16 +63,16 @@ def check_douyin_data():
         return True, "无活跃抖音视频（30天内），跳过检查"
     
     stale_files = []
-    for fpath in active_files:
+    for fpath, threshold in active_files:
         mtime = os.path.getmtime(fpath)
         age_hours = (time.time() - mtime) / 3600
-        if age_hours > 2:
+        if age_hours > threshold:
             stale_files.append((os.path.basename(fpath), age_hours))
     
     if len(stale_files) == len(active_files):
-        return False, f"所有活跃抖音视频均超过2小时未更新: {[f'{f[0]}({f[1]:.1f}h)' for f in stale_files[:3]]}"
+        return False, f"所有活跃抖音视频均超阈值未更新: {[f'{f[0]}({f[1]:.1f}h)' for f in stale_files[:3]]}"
     if stale_files:
-        return False, f"部分活跃抖音视频超过2小时未更新: {[f'{f[0]}({f[1]:.1f}h)' for f in stale_files[:3]]}"
+        return False, f"部分活跃抖音视频超阈值未更新: {[f'{f[0]}({f[1]:.1f}h)' for f in stale_files[:3]]}"
     return True, "抖音数据正常更新中"
 
 def check_douyin_fans():
