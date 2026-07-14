@@ -49,10 +49,12 @@ def check_douyin_data():
                 else:
                     publish_dt = None
                 if publish_dt and publish_dt > cutoff:
-                    # 根据发布时间判断频率级别
+                    # 根据发布时间判断频率级别（与fetch_douyin_batch.py一致）
                     days_since_publish = (now - publish_dt).total_seconds() / 86400
-                    if days_since_publish <= 5:
-                        threshold = 2  # hourly级别
+                    if days_since_publish <= 3:
+                        threshold = 2  # hourly级别（每小时采集）
+                    elif days_since_publish <= 14:
+                        threshold = 6  # every4h级别（每4小时采集，留2h余量）
                     else:
                         threshold = 26  # daily级别（每天8:30采集，留余量）
                     active_files.append((fpath, threshold))
