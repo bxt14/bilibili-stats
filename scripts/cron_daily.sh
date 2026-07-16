@@ -1,4 +1,5 @@
 #!/bin/bash
+export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
 export NODE_NO_WARNINGS=1
 export LARKSUITE_CLI_CONFIG_DIR="/app/data/所有对话/主对话/.feishu_cli"
 export LARKSUITE_CLI_DATA_DIR="/app/data/所有对话/主对话/.feishu_cli"
