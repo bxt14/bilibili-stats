@@ -223,6 +223,14 @@ def record_video_data(bvid, video_info):
     day_file = os.path.join(VIDEO_DATA_DIR, f'{bvid}_{date_str}.json')
     day_data = load_json_safe(day_file, [])
     day_data.append(record)
+    # 去重：同一小时只保留最后一个
+    seen_h = {}
+    for i, d in enumerate(day_data):
+        t = d.get('time', '')
+        hk = t.split(':')[0] if ':' in t else t
+        seen_h[hk] = i
+    if len(seen_h) < len(day_data):
+        day_data = [day_data[i] for i in sorted(seen_h.values())]
     save_json(day_data, day_file)
     
     # 更新总文件：直接追加，避免每次全量重建
@@ -232,6 +240,14 @@ def record_video_data(bvid, video_info):
         all_data = []
     all_data.append(record)
     all_data.sort(key=lambda x: x.get('timestamp', 0))
+    # 去重：同一小时只保留最后一个数据点
+    seen_hours = {}
+    for i, d in enumerate(all_data):
+        t = d.get('time', '')
+        hour_key = t.split(':')[0] if ':' in t else t
+        seen_hours[hour_key] = i
+    if len(seen_hours) < len(all_data):
+        all_data = [all_data[i] for i in sorted(seen_hours.values())]
     save_json(all_data, all_file)
     
     return record
