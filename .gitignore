@@ -17,3 +17,6 @@ __pycache__/
 
 # Orphaned images
 image_*
+
+# Backup archives
+repo_backup_*.tar.gz
