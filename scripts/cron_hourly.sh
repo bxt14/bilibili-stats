@@ -2,9 +2,9 @@
 export NODE_NO_WARNINGS=1
 export LARKSUITE_CLI_CONFIG_DIR="/app/data/所有对话/主对话/.feishu_cli"
 export LARKSUITE_CLI_DATA_DIR="/app/data/所有对话/主对话/.feishu_cli"
-cd /tmp/.fuse_data/所有对话/主对话/bilibili-stats
+cd /app/data/所有对话/主对话/bilibili-stats
 
-LOG=/tmp/.fuse_data/所有对话/主对话/bilibili-stats/logs/hourly_sync.log
+LOG=/app/data/所有对话/主对话/bilibili-stats/logs/hourly_sync.log
 echo "=== HOURLY $(date '+%Y-%m-%d %H:%M:%S') ===" >> "$LOG" 2>&1
 
 python3 -u scripts/fetch_data.py videos >> "$LOG" 2>&1
