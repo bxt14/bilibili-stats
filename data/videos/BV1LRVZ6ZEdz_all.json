@@ -96,18 +96,6 @@
     "share": 804
   },
   {
-    "timestamp": 1781262006,
-    "date": "2026-06-12",
-    "time": "19:00",
-    "view": 136231,
-    "like": 13154,
-    "coin": 404,
-    "favorite": 1360,
-    "reply": 679,
-    "danmaku": 342,
-    "share": 894
-  },
-  {
     "timestamp": 1781264086,
     "date": "2026-06-12",
     "time": "19:34",
@@ -444,42 +432,6 @@
     "share": 1495
   },
   {
-    "timestamp": 1781362805,
-    "date": "2026-06-13",
-    "time": "23:00",
-    "view": 265542,
-    "like": 23716,
-    "coin": 786,
-    "favorite": 2098,
-    "reply": 966,
-    "danmaku": 499,
-    "share": 1513
-  },
-  {
-    "timestamp": 1781363955,
-    "date": "2026-06-13",
-    "time": "23:19",
-    "view": 266557,
-    "like": 23804,
-    "coin": 792,
-    "favorite": 2101,
-    "reply": 967,
-    "danmaku": 499,
-    "share": 1517
-  },
-  {
-    "timestamp": 1781365418,
-    "date": "2026-06-13",
-    "time": "23:43",
-    "view": 267673,
-    "like": 23881,
-    "coin": 797,
-    "favorite": 2104,
-    "reply": 969,
-    "danmaku": 499,
-    "share": 1521
-  },
-  {
     "timestamp": 1781365573,
     "date": "2026-06-13",
     "time": "23:46",
@@ -490,30 +442,6 @@
     "reply": 969,
     "danmaku": 499,
     "share": 1523
-  },
-  {
-    "timestamp": 1781377841,
-    "date": "2026-06-14",
-    "time": "03:10",
-    "view": 272894,
-    "like": 24302,
-    "coin": 806,
-    "favorite": 2107,
-    "reply": 978,
-    "danmaku": 582,
-    "share": 1549
-  },
-  {
-    "timestamp": 1781377970,
-    "date": "2026-06-14",
-    "time": "03:12",
-    "view": 272915,
-    "like": 24301,
-    "coin": 806,
-    "favorite": 2107,
-    "reply": 978,
-    "danmaku": 582,
-    "share": 1549
   },
   {
     "timestamp": 1781378131,
@@ -1738,18 +1666,6 @@
     "reply": 1327,
     "danmaku": 851,
     "share": 2630
-  },
-  {
-    "timestamp": 1783572766,
-    "date": "2026-07-09",
-    "time": "12:52",
-    "view": 527595,
-    "like": 41335,
-    "coin": 1471,
-    "favorite": 3216,
-    "reply": 1328,
-    "danmaku": 852,
-    "share": 2637
   },
   {
     "timestamp": 1783572784,

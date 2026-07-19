@@ -36,6 +36,18 @@
     "share": 467
   },
   {
+    "timestamp": 1784207939,
+    "date": "2026-07-16",
+    "time": "21:18",
+    "view": 489546,
+    "like": 54494,
+    "coin": 10097,
+    "favorite": 6823,
+    "reply": 1979,
+    "danmaku": 1906,
+    "share": 648
+  },
+  {
     "timestamp": 1784255545,
     "date": "2026-07-17",
     "time": "10:32",
@@ -70,5 +82,17 @@
     "reply": 3424,
     "danmaku": 3449,
     "share": 1576
+  },
+  {
+    "timestamp": 1784466273,
+    "date": "2026-07-19",
+    "time": "21:04",
+    "view": 3651929,
+    "like": 146190,
+    "coin": 27737,
+    "favorite": 34578,
+    "reply": 3624,
+    "danmaku": 3711,
+    "share": 1733
   }
 ]

@@ -223,11 +223,10 @@ def record_video_data(bvid, video_info):
     day_file = os.path.join(VIDEO_DATA_DIR, f'{bvid}_{date_str}.json')
     day_data = load_json_safe(day_file, [])
     day_data.append(record)
-    # 去重：同一小时只保留最后一个
+    # 去重：同一小时只保留最后一个（用时间戳整除3600作为key，天然包含日期）
     seen_h = {}
     for i, d in enumerate(day_data):
-        t = d.get('time', '')
-        hk = t.split(':')[0] if ':' in t else t
+        hk = d.get('timestamp', 0) // 3600
         seen_h[hk] = i
     if len(seen_h) < len(day_data):
         day_data = [day_data[i] for i in sorted(seen_h.values())]
@@ -240,11 +239,10 @@ def record_video_data(bvid, video_info):
         all_data = []
     all_data.append(record)
     all_data.sort(key=lambda x: x.get('timestamp', 0))
-    # 去重：同一小时只保留最后一个数据点
+    # 去重：同一小时只保留最后一个数据点（timestamp//3600 跨天不会冲突）
     seen_hours = {}
     for i, d in enumerate(all_data):
-        t = d.get('time', '')
-        hour_key = t.split(':')[0] if ':' in t else t
+        hour_key = d.get('timestamp', 0) // 3600
         seen_hours[hour_key] = i
     if len(seen_hours) < len(all_data):
         all_data = [all_data[i] for i in sorted(seen_hours.values())]
