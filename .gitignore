@@ -20,3 +20,9 @@ image_*
 
 # Backup archives
 repo_backup_*.tar.gz
+
+# Chrome profile (本地浏览器状态，不入库)
+chrome-profile/
+
+# 采集锁
+logs/*.lock
