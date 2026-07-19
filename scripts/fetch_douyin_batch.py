@@ -25,6 +25,7 @@ from datetime import datetime, timedelta
 
 # 从 fetch_douyin_video.py 导入共享函数
 sys.path.insert(0, os.path.dirname(__file__))
+import config
 from fetch_douyin_video import (
     parse_count, _parse_video_page, save_video_data,
     ensure_chrome_running, CDP_PORT
@@ -36,14 +37,14 @@ except ImportError:
     print("需要安装playwright: pip3 install playwright && playwright install chromium")
     sys.exit(1)
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, 'data')
-DOUYIN_VIDEOS_DIR = os.path.join(DATA_DIR, 'douyin_videos')
+BASE_DIR = config.BASE_DIR
+DATA_DIR = config.DATA_DIR
+DOUYIN_VIDEOS_DIR = config.DOUYIN_VIDEOS_DIR
 
-# 频率分级阈值
-HOURLY_MAX_AGE_DAYS = 3    # 发布3天内：每小时采集
-EVERY4H_MAX_AGE_DAYS = 14  # 发布3-14天：每4小时采集（0,4,8,12,16,20点）
-DAILY_MAX_AGE_DAYS = 30    # 发布14-30天：每天采集
+# 频率分级阈值（统一从config读取）
+HOURLY_MAX_AGE_DAYS = config.DOUYIN_HOURLY_MAX_AGE_DAYS
+EVERY4H_MAX_AGE_DAYS = config.DOUYIN_EVERY4H_MAX_AGE_DAYS
+DAILY_MAX_AGE_DAYS = config.DOUYIN_DAILY_MAX_AGE_DAYS
 
 # 页面等待时间
 VIDEO_PAGE_WAIT_SECONDS = 6   # 视频页JS渲染等待（从8s降到6s）

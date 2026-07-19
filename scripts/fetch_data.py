@@ -12,28 +12,18 @@ import requests
 import json
 import time
 import os
+import sys
 from datetime import datetime, timedelta
 
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-    'Referer': 'https://www.bilibili.com'
-}
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import config
 
-# 账号配置
-ACCOUNTS = {
-    'bidao': {
-        'uid': '254463269',
-        'name': '毕导',
-    },
-    'erjiedao': {
-        'uid': '489763089',
-        'name': '毕的二阶导',
-    }
-}
+HEADERS = config.BILI_HEADERS
+ACCOUNTS = config.ACCOUNTS
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-DATA_DIR = os.path.join(BASE_DIR, 'data')
-VIDEO_DATA_DIR = os.path.join(DATA_DIR, 'videos')
+BASE_DIR = config.BASE_DIR
+DATA_DIR = config.DATA_DIR
+VIDEO_DATA_DIR = config.VIDEO_DATA_DIR
 
 # 从配置文件读取需要监控的视频
 def load_watch_videos():
@@ -351,8 +341,8 @@ def fetch_account_fans():
     
     feishu_result = subprocess.run([
         'lark-cli', 'base', '+record-upsert', '--as', 'user',
-        '--base-token', 'CZwHbS7d2alENJsYoJicXOLgnIe',
-        '--table-id', 'tblMJtSgWy5EFZrH',
+        '--base-token', config.FEISHU_BASE_TOKEN,
+        '--table-id', config.FEISHU_BILIBILI_TABLE,
         '--json', feishu_json
     ], capture_output=True, text=True)
     

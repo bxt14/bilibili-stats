@@ -1,20 +1,23 @@
 #!/bin/bash
-export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
-export GH_CONFIG_DIR="/app/data/所有对话/主对话/.gh"
-export NODE_NO_WARNINGS=1
-export LARKSUITE_CLI_CONFIG_DIR="/app/data/所有对话/主对话/.feishu_cli"
-export LARKSUITE_CLI_DATA_DIR="/app/data/所有对话/主对话/.feishu_cli"
-cd /app/data/所有对话/主对话/bilibili-stats
+# 日级采集：粉丝数据 + 日频视频 + 抖音全量 + 生成HTML + git推送
+# 环境变量由 scripts/config.py 统一管理，此脚本只管流程
+set -o pipefail
 
-LOG=/app/data/所有对话/主对话/bilibili-stats/logs/daily_sync.log
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJ_DIR="$(dirname "$SCRIPT_DIR")"
+cd "$PROJ_DIR" || exit 1
+
+LOG="$PROJ_DIR/logs/daily_sync.log"
+mkdir -p "$PROJ_DIR/logs"
 echo "=== DAILY $(date '+%Y-%m-%d %H:%M:%S') ===" >> "$LOG" 2>&1
 
+# 1. 粉丝数据（B站+抖音）+ 日频视频
 python3 -u scripts/fetch_data.py fans >> "$LOG" 2>&1
 python3 -u scripts/fetch_data.py videos-daily >> "$LOG" 2>&1
 python3 -u scripts/fetch_data.py douyin >> "$LOG" 2>&1
 
-# 抖音视频采集：创建锁文件防止与hourly冲突
-LOCKFILE=/tmp/douyin_fetch.lock
+# 2. 抖音视频全量采集：创建锁文件防止与hourly冲突
+LOCKFILE="$PROJ_DIR/logs/douyin_fetch.lock"
 if [ -f "$LOCKFILE" ]; then
     lock_age=$(( $(date +%s) - $(stat -c %Y "$LOCKFILE" 2>/dev/null || echo 0) ))
     if [ "$lock_age" -lt 300 ]; then
@@ -25,26 +28,25 @@ if [ -f "$LOCKFILE" ]; then
     fi
 fi
 
-# 清理Chrome残留标签页
+# 3. 清理Chrome残留标签页
 python3 -u scripts/cleanup_chrome_tabs.py >> "$LOG" 2>&1
 
-# 创建锁文件
+# 4. 创建锁文件后采集
 date +%s > "$LOCKFILE"
-
 timeout 300 python3 -u scripts/fetch_douyin_batch.py --mode daily >> "$LOG" 2>&1
 DOUYIN_EXIT=$?
-
-# 删除锁文件
 rm -f "$LOCKFILE"
 
 if [ "$DOUYIN_EXIT" -eq 124 ]; then
-    echo "⚠️ 抖音采集超时(180s)" >> "$LOG" 2>&1
+    echo "⚠️ 抖音采集超时(300s)" >> "$LOG" 2>&1
     sleep 2
     python3 -u scripts/cleanup_chrome_tabs.py >> "$LOG" 2>&1
 fi
 
+# 5. 生成HTML
 python3 -u scripts/generate_html.py >> "$LOG" 2>&1
 
+# 6. Git提交推送
 git add .
 if git diff --cached --quiet; then
     echo "no changes" >> "$LOG" 2>&1

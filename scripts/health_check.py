@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
 """看板健康检查：检查cron采集是否正常运行"""
 import os
+import sys
 import json
 import time
 from datetime import datetime, timedelta
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(BASE_DIR, "data")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import config
+
+BASE_DIR = config.BASE_DIR
+DATA_DIR = config.DATA_DIR
 
 DAILY_CRON_HOUR = 8  # 日级cron在8:30运行，8点前不应期待当天数据
 
 def check_hourly_log():
     """检查小时级日志是否在2小时内有更新"""
-    log_path = "/app/data/所有对话/主对话/bilibili-stats/logs/hourly_sync.log"
+    log_path = os.path.join(config.LOGS_DIR, "hourly_sync.log")
     if not os.path.exists(log_path):
         return False, "hourly_sync.log 不存在"
     mtime = os.path.getmtime(log_path)

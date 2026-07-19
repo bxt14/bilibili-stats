@@ -6,12 +6,16 @@
 """
 import json
 import os
+import sys
 from datetime import datetime, timedelta
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-DATA_DIR = os.path.join(BASE_DIR, 'data')
-VIDEO_DATA_DIR = os.path.join(DATA_DIR, 'videos')
-DOCS_DIR = os.path.join(BASE_DIR, 'docs')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import config
+
+BASE_DIR = config.BASE_DIR
+DATA_DIR = config.DATA_DIR
+VIDEO_DATA_DIR = config.VIDEO_DATA_DIR
+DOCS_DIR = config.DOCS_DIR
 
 
 

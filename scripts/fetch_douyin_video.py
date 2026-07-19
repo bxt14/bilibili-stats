@@ -25,13 +25,16 @@ except ImportError:
     sys.exit(1)
 
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-DATA_DIR = os.path.join(BASE_DIR, 'data')
-DOUYIN_VIDEOS_DIR = os.path.join(DATA_DIR, 'douyin_videos')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import config
 
-CDP_PORT = 9222
-CHROME_USER_DATA = '/tmp/chrome-douyin-profile'
-DISPLAY_NUM = 99
+BASE_DIR = config.BASE_DIR
+DATA_DIR = config.DATA_DIR
+DOUYIN_VIDEOS_DIR = config.DOUYIN_VIDEOS_DIR
+
+CDP_PORT = config.CDP_PORT
+CHROME_USER_DATA = config.CHROME_USER_DATA  # 项目目录下，不再用/tmp（会被系统清理）
+DISPLAY_NUM = config.DISPLAY_NUM
 
 
 def parse_count(text):
