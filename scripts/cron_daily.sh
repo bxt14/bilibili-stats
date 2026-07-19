@@ -7,6 +7,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJ_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$PROJ_DIR" || exit 1
 
+# git 凭证：credential.helper 走 gh CLI，必须显式指向工作区的 gh 配置目录（cron 环境无此变量，否则 push 静默失败）
+export GH_CONFIG_DIR="$PROJ_DIR/../.gh"
+
 LOG="$PROJ_DIR/logs/daily_sync.log"
 mkdir -p "$PROJ_DIR/logs"
 echo "=== DAILY $(date '+%Y-%m-%d %H:%M:%S') ===" >> "$LOG" 2>&1
