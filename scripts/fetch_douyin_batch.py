@@ -61,6 +61,42 @@ Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
 delete navigator.__proto__.webdriver;
 """
 
+# ============ 熔断机制 ============
+# 抖音IP级风控时，硬闯只会加重封锁。连续失败时熔断2小时。
+CIRCUIT_BREAKER_FILE = os.path.join(config.LOGS_DIR, 'douyin_circuit_open_until')
+CIRCUIT_BREAKER_SECONDS = 2 * 3600  # 熔断时长2小时
+
+
+def circuit_is_open():
+    """检查熔断器是否处于打开状态（应跳过采集）"""
+    try:
+        if os.path.exists(CIRCUIT_BREAKER_FILE):
+            with open(CIRCUIT_BREAKER_FILE, 'r') as f:
+                until = float(f.read().strip())
+            remaining = until - time.time()
+            if remaining > 0:
+                print(f"熔断器打开中（剩余 {remaining/60:.0f} 分钟），跳过本次抖音采集")
+                return True
+            else:
+                os.remove(CIRCUIT_BREAKER_FILE)
+    except (ValueError, IOError):
+        pass
+    return False
+
+
+def circuit_open():
+    """打开熔断器"""
+    os.makedirs(os.path.dirname(CIRCUIT_BREAKER_FILE), exist_ok=True)
+    with open(CIRCUIT_BREAKER_FILE, 'w') as f:
+        f.write(str(time.time() + CIRCUIT_BREAKER_SECONDS))
+    print(f"⚠️ 熔断器已打开，{CIRCUIT_BREAKER_SECONDS//3600}小时内暂停抖音采集")
+
+
+def circuit_close():
+    """采集成功，关闭熔断器"""
+    if os.path.exists(CIRCUIT_BREAKER_FILE):
+        os.remove(CIRCUIT_BREAKER_FILE)
+
 
 def get_active_videos(max_age_days=30):
     """获取需要采集的活跃视频列表，按频率分级
@@ -357,6 +393,11 @@ def fetch_all_batch(videos_to_collect):
         close_all_non_blank_tabs()
 
     print(f"\n采集完成！成功 {success_count}/{total} 个")
+
+    # 全部失败且确实尝试了：判定为IP级风控，打开熔断器
+    if success_count == 0 and total > 0:
+        circuit_open()
+
     return success_count == total
 
 
@@ -396,6 +437,10 @@ def main():
     print(f"抖音视频批量采集: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"模式: {mode}")
     print(f"{'='*60}")
+
+    # 熔断检查：IP风控期间跳过，避免加重封锁
+    if circuit_is_open():
+        return 0
 
     active = get_active_videos()
     total_active = sum(len(v) for v in active.values())
