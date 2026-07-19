@@ -26,3 +26,4 @@ chrome-profile/
 
 # 采集锁
 logs/*.lock
+logs/douyin_circuit_open_until
