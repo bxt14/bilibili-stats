@@ -5,10 +5,10 @@
   "likes": 169000,
   "comments": 2015,
   "collects": 13000,
-  "shares": 8828,
+  "shares": 8830,
   "publish_time": "2026-07-09 17:18",
   "source_url": "https://www.douyin.com/video/7660416023220260122",
-  "fetch_time": "2026-07-24 08:00:35",
+  "fetch_time": "2026-07-24 08:30:41",
   "history": [
     {
       "fetch_time": "2026-07-09 17:23:00",
@@ -920,6 +920,14 @@
       "comments": 2015,
       "collects": 13000,
       "shares": 8828,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-07-24 08:30:41",
+      "likes": 169000,
+      "comments": 2015,
+      "collects": 13000,
+      "shares": 8830,
       "plays": 0
     }
   ]
