@@ -2,13 +2,13 @@
   "video_id": "7665560182360902963",
   "title": "第121集 | 刚买的李子丢进水里，直接长出了一层透明壳？？ #科普#欢迎问我任何问题 #知识前沿派对",
   "author": "毕导",
-  "likes": 104000,
-  "comments": 967,
+  "likes": 105000,
+  "comments": 975,
   "collects": 10000,
-  "shares": 9011,
+  "shares": 9071,
   "publish_time": "2026-07-23 17:00",
   "source_url": "https://www.douyin.com/video/7665560182360902963",
-  "fetch_time": "2026-07-25 19:00:17",
+  "fetch_time": "2026-07-25 20:00:17",
   "history": [
     {
       "fetch_time": "2026-07-23 17:55:58",
@@ -432,6 +432,14 @@
       "comments": 967,
       "collects": 10000,
       "shares": 9011,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-07-25 20:00:17",
+      "likes": 105000,
+      "comments": 975,
+      "collects": 10000,
+      "shares": 9071,
       "plays": 0
     }
   ]
