@@ -1418,18 +1418,18 @@ def generate_html():
       
       currentVideoChart = echarts.init(document.getElementById('videoChart'));
       
-      let times, values, metricLabel, chartColor, borderColor;
-      
+      let points, metricLabel, chartColor, borderColor;
+
       if (currentPlatform === 'douyin') {
         const dyData = douyinVideoData[currentBvid];
         if (!dyData || !dyData.history) return;
-        
-        times = dyData.history.map(item => {
-          const parts = item.fetch_time.split(' ');
-          return parts[0] + ' ' + parts[1].substring(0, 5);
+
+        points = dyData.history.map(item => {
+          // fetch_time 格式 "2026-07-23 17:55:58"，转为本地时间 Date
+          const t = item.fetch_time.replace(/-/g, '/');
+          return [new Date(t).getTime(), item[currentMetric] || 0];
         });
-        values = dyData.history.map(item => item[currentMetric] || 0);
-        
+
         const douyinMetricNames = {
           likes: '点赞', comments: '评论', collects: '收藏', shares: '转发'
         };
@@ -1439,13 +1439,9 @@ def generate_html():
       } else {
         const video = videoData[currentBvid];
         if (!video || !video.data) return;
-        
-        times = video.data.map(item => {
-          const date = new Date(item.timestamp * 1000);
-          return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        });
-        values = video.data.map(item => item[currentMetric]);
-        
+
+        points = video.data.map(item => [item.timestamp * 1000, item[currentMetric]]);
+
         const metricNames = {
           view: '播放量', like: '点赞', coin: '投币',
           favorite: '收藏', reply: '评论', share: '分享', danmaku: '弹幕'
@@ -1471,7 +1467,13 @@ def generate_html():
             fontFamily: 'Space Mono, monospace'
           },
           formatter: function(params) {
-            return params[0].axisValue + '<br/><strong>' + params[0].value.toLocaleString() + '</strong>';
+            const p = params[0];
+            const ts = p.value[0];
+            const v = p.value[1];
+            const d = new Date(ts);
+            const label = (d.getMonth() + 1) + '月' + d.getDate() + '日 ' +
+              String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+            return label + '<br/><strong>' + v.toLocaleString() + '</strong>';
           }
         },
         title: {
@@ -1485,10 +1487,18 @@ def generate_html():
           bottom: '15%'
         },
         xAxis: {
-          type: 'category',
-          data: times,
+          type: 'time',
           axisLine: { lineStyle: { color: '#333' } },
-          axisLabel: { color: '#666', fontSize: 10, rotate: times.length > 10 ? 30 : 0 }
+          axisLabel: {
+            color: '#666',
+            fontSize: 10,
+            rotate: points.length > 10 ? 30 : 0,
+            formatter: function(val) {
+              const d = new Date(val);
+              return (d.getMonth() + 1) + '/' + d.getDate() + ' ' +
+                String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+            }
+          }
         },
         yAxis: {
           type: 'value',
@@ -1507,7 +1517,7 @@ def generate_html():
         series: [{
           type: 'line',
           smooth: true,
-          data: values,
+          data: points,
           lineStyle: { width: 3, color: chartColor },
           itemStyle: { color: chartColor },
           areaStyle: currentPlatform === 'douyin' ? {
