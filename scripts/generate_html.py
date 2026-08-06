@@ -75,7 +75,36 @@ def generate_html():
             if os.path.exists(douyin_file):
                 with open(douyin_file, 'r', encoding='utf-8') as f:
                     douyin_datasets[bvid] = json.load(f)
-    
+
+    # 扫描独立抖音视频（没有对应B站视频的抖音内容）
+    linked_douyin_ids = set()
+    for v in all_videos:
+        did = v.get('douyin_video_id')
+        if did:
+            linked_douyin_ids.add(str(did))
+
+    standalone_douyin = []
+    if os.path.exists(DOUYIN_VIDEO_DIR):
+        for fname in sorted(os.listdir(DOUYIN_VIDEO_DIR)):
+            if not fname.endswith('.json') or fname.startswith('.'):
+                continue
+            fpath = os.path.join(DOUYIN_VIDEO_DIR, fname)
+            try:
+                with open(fpath, 'r', encoding='utf-8') as f:
+                    dydata = json.load(f)
+                vid = str(dydata.get('video_id', fname.replace('.json', '')))
+                if vid in linked_douyin_ids:
+                    continue
+                # 跳过无有效数据的
+                if dydata.get('likes', 0) == 0 and not dydata.get('history'):
+                    continue
+                standalone_douyin.append(dydata)
+                # 加入 douyin_datasets 供前端使用，key 用 dy_ 前缀
+                dy_key = f'dy_{vid}'
+                douyin_datasets[dy_key] = dydata
+            except Exception:
+                continue
+
     update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
     # 统计今年各账号视频发布数量
@@ -182,7 +211,70 @@ def generate_html():
         if month_key not in month_groups:
             month_groups[month_key] = []
         month_groups[month_key].append(card_html)
-    
+
+    # 生成独立抖音视频卡片（无对应B站视频）
+    for dy in standalone_douyin:
+        dy_vid = str(dy.get('video_id', ''))
+        dy_key = f'dy_{dy_vid}'
+        dy_title = escape_html(dy.get('title', '抖音视频'))
+        dy_author = escape_html(dy.get('author', ''))
+        publish_time_str = dy.get('publish_time', '')
+        try:
+            # publish_time 格式 "2026-08-05 18:29"
+            pub_dt = datetime.strptime(publish_time_str, '%Y-%m-%d %H:%M')
+            created_ts = int(pub_dt.timestamp())
+            created_str = pub_dt.strftime('%Y-%m-%d')
+            days_since = (datetime.now() - pub_dt).days
+        except Exception:
+            created_ts = 0
+            created_str = publish_time_str[:10] if publish_time_str else ''
+            days_since = 0
+
+        month_key = created_str[:7] if created_str else 'unknown'
+        is_live = days_since <= 30
+        status_class = 'monitoring' if is_live else 'archived'
+        status_text = 'LIVE' if is_live else 'ARCHIVED'
+
+        likes = dy.get('likes', 0)
+        comments = dy.get('comments', 0)
+        collects = dy.get('collects', 0)
+        shares = dy.get('shares', 0)
+        has_history = bool(dy.get('history'))
+        onclick = f'onclick="showVideoChart(\'{dy_key}\')"' if has_history else ''
+        cursor_class = 'clickable' if has_history else ''
+
+        dy_card_html = f"""
+    <div class="video-card douyin-only {status_class} {cursor_class}" {onclick}>
+      <div class="video-status">{status_text}</div>
+      <div class="video-content">
+        <div class="video-thumb-wrapper dy-thumb-wrapper">
+          <div class="video-thumb dy-thumb-placeholder">
+            <span class="dy-logo">🎵</span>
+            <span class="dy-only-tag">抖音 ONLY</span>
+          </div>
+        </div>
+        <div class="video-info">
+          <h3 class="video-title">{dy_title}</h3>
+          <div class="video-meta">
+            <span class="meta-item dy-author">@{dy_author}</span>
+            <span class="meta-item">{created_str}</span>
+            <span class="meta-item">D+{days_since}</span>
+          </div>
+          <div class="video-stats douyin-stats">
+            <span class="platform-tag-douyin">抖音</span>
+            <div class="stat-pill">❤ {format_number(likes)}</div>
+            <div class="stat-pill">💬 {format_number(comments)}</div>
+            <div class="stat-pill">⭐ {format_number(collects)}</div>
+            <div class="stat-pill">🔄 {format_number(shares)}</div>
+          </div>
+        </div>
+      </div>
+    </div>"""
+
+        if month_key not in month_groups:
+            month_groups[month_key] = []
+        month_groups[month_key].append(dy_card_html)
+
     # 按月份倒序排列，生成带月份标题的卡片列表
     video_cards = []
     for month_key in sorted(month_groups.keys(), reverse=True):
@@ -210,6 +302,12 @@ def generate_html():
         bvid = video['bvid']
         if douyin_id and bvid in douyin_datasets:
             douyin_video_data[bvid] = douyin_datasets[bvid]
+    # 加入独立抖音视频，key 用 dy_ 前缀
+    for dy in standalone_douyin:
+        dy_vid = str(dy.get('video_id', ''))
+        dy_key = f'dy_{dy_vid}'
+        if dy_key in douyin_datasets:
+            douyin_video_data[dy_key] = douyin_datasets[dy_key]
     douyin_video_data_json = json.dumps(douyin_video_data, ensure_ascii=False)
     
     # 计算本月涨粉量
@@ -790,6 +888,51 @@ def generate_html():
     .video-card.archived {
       opacity: 0.8;
     }
+
+    .video-card.douyin-only {
+      border-left: 4px solid #fe2c55;
+      background: linear-gradient(135deg, rgba(254, 44, 85, 0.04), var(--dark-2) 40%);
+    }
+
+    .video-card.douyin-only:hover {
+      border-color: #fe2c55;
+    }
+
+    .video-card.douyin-only .video-status {
+      background: #fe2c55;
+    }
+
+    .dy-thumb-placeholder {
+      width: 160px;
+      height: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a0a14 100%);
+      border: 2px solid rgba(254, 44, 85, 0.3);
+      color: #fe2c55;
+    }
+
+    .dy-logo {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .dy-only-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      padding: 2px 8px;
+      background: rgba(254, 44, 85, 0.15);
+      color: #fe2c55;
+      border: 1px solid rgba(254, 44, 85, 0.4);
+    }
+
+    .dy-author {
+      color: #fe2c55 !important;
+    }
     
     .video-status {
       position: absolute;
@@ -1154,7 +1297,7 @@ def generate_html():
     <div class="videos-section">
       <div class="section-header">
         <div class="section-title">2026 视频作品</div>
-        <div class="section-tag">""" + str(len(all_videos)) + """ VIDEOS</div>
+        <div class="section-tag">""" + str(len(all_videos) + len(standalone_douyin)) + """ VIDEOS</div>
       </div>
       <div class="videos-grid">
         """ + ''.join(video_cards) + """
@@ -1329,39 +1472,70 @@ def generate_html():
     // 显示视频图表
     function showVideoChart(bvid) {
       currentBvid = bvid;
-      currentPlatform = 'bilibili';
-      currentMetric = 'view';
-      
+
+      const isStandaloneDouyin = typeof bvid === 'string' && bvid.indexOf('dy_') === 0;
+      const bilibiliBtn = document.getElementById('platformBilibili');
+      const douyinBtn = document.getElementById('platformDouyin');
+
       const modal = document.getElementById('videoModal');
       modal.classList.add('show');
-      
-      // 检查是否有抖音数据，显示/隐藏抖音按钮
-      const douyinBtn = document.getElementById('platformDouyin');
-      if (douyinVideoData[bvid]) {
+
+      if (isStandaloneDouyin) {
+        // 独立抖音视频：只显示抖音平台
+        currentPlatform = 'douyin';
+        currentMetric = 'likes';
+
+        bilibiliBtn.style.display = 'none';
+        bilibiliBtn.classList.remove('active');
         douyinBtn.style.display = '';
+        douyinBtn.classList.add('active');
+
+        document.querySelectorAll('.metric-bilibili').forEach(btn => {
+          btn.style.display = 'none';
+          btn.classList.remove('active');
+        });
+        document.querySelectorAll('.metric-douyin').forEach(btn => {
+          btn.style.display = '';
+          btn.classList.remove('active');
+        });
+        document.querySelector('.metric-douyin').classList.add('active');
+
+        const dyData = douyinVideoData[bvid];
+        if (dyData && dyData.title) {
+          document.getElementById('modalVideoTitle').textContent = dyData.title.toUpperCase();
+        }
       } else {
-        douyinBtn.style.display = 'none';
+        currentPlatform = 'bilibili';
+        currentMetric = 'view';
+
+        // 检查是否有抖音数据，显示/隐藏抖音按钮
+        if (douyinVideoData[bvid]) {
+          douyinBtn.style.display = '';
+        } else {
+          douyinBtn.style.display = 'none';
+        }
+
+        // 重置平台按钮状态
+        bilibiliBtn.style.display = '';
+        bilibiliBtn.classList.add('active');
+        douyinBtn.classList.remove('active');
+        // 重置指标按钮：显示B站按钮，隐藏抖音按钮
+        document.querySelectorAll('.metric-bilibili').forEach(btn => {
+          btn.style.display = '';
+          btn.classList.remove('active');
+        });
+        document.querySelectorAll('.metric-douyin').forEach(btn => {
+          btn.style.display = 'none';
+          btn.classList.remove('active');
+        });
+        document.querySelector('.metric-bilibili').classList.add('active');
+
+        const video = videoData[bvid];
+        if (video && video.meta) {
+          document.getElementById('modalVideoTitle').textContent = decodeURIComponent('" + encodeURIComponent(video.meta.title) + "').toUpperCase();
+        }
       }
-      
-      // 重置平台按钮状态
-      document.getElementById('platformBilibili').classList.add('active');
-      document.getElementById('platformDouyin').classList.remove('active');
-      // 重置指标按钮：显示B站按钮，隐藏抖音按钮
-      document.querySelectorAll('.metric-bilibili').forEach(btn => {
-        btn.style.display = '';
-        btn.classList.remove('active');
-      });
-      document.querySelectorAll('.metric-douyin').forEach(btn => {
-        btn.style.display = 'none';
-        btn.classList.remove('active');
-      });
-      document.querySelector('.metric-bilibili').classList.add('active');
-      
-      const video = videoData[bvid];
-      if (video && video.meta) {
-        document.getElementById('modalVideoTitle').textContent = decodeURIComponent('" + encodeURIComponent(video.meta.title) + "').toUpperCase();
-      }
-      
+
       setTimeout(() => {
         renderVideoChart();
       }, 100);
@@ -1386,6 +1560,11 @@ def generate_html():
 
     // 设置视频平台
     function setVideoPlatform(platform) {
+      const bilibiliBtn = document.getElementById('platformBilibili');
+      // 独立抖音视频：B站按钮隐藏时禁止切回B站
+      if (platform === 'bilibili' && bilibiliBtn.style.display === 'none') {
+        return;
+      }
       currentPlatform = platform;
       document.querySelectorAll('.platform-btn').forEach(btn => btn.classList.remove('active'));
       event.target.classList.add('active');
