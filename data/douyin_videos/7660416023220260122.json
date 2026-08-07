@@ -2,13 +2,13 @@
   "video_id": "7660416023220260122",
   "title": "第119集 | 800w粉丝读评论！读完破防了..... #科普 #日常 #欢迎问我任何问题",
   "author": "毕导",
-  "likes": 199000,
-  "comments": 2157,
-  "collects": 15000,
+  "likes": 204000,
+  "comments": 2202,
+  "collects": 16000,
   "shares": 10000,
   "publish_time": "2026-07-09 17:18",
   "source_url": "https://www.douyin.com/video/7660416023220260122",
-  "fetch_time": "2026-08-05 08:30:43",
+  "fetch_time": "2026-08-07 14:23:56",
   "history": [
     {
       "fetch_time": "2026-07-09 17:23:00",
@@ -1031,6 +1031,14 @@
       "likes": 199000,
       "comments": 2157,
       "collects": 15000,
+      "shares": 10000,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-08-07 14:23:56",
+      "likes": 204000,
+      "comments": 2202,
+      "collects": 16000,
       "shares": 10000,
       "plays": 0
     }
