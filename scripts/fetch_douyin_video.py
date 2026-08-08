@@ -285,61 +285,56 @@ def _find_in_json(data, key, depth=0):
 
 
 def _parse_from_text(text, video_data):
-    """从页面文本提取视频数据（备用方案）"""
-    lines = text.split('\n')
+    """从页面文本提取视频数据（备用方案）。
     
-    # 查找标题行（包含 "|" 且有话题标签）
-    for i, line in enumerate(lines):
-        if '|' in line and ('#' in line or '集' in line.split('|')[0]):
-            # 可能是标题
-            if len(line) > 10 and len(line) < 200:
-                video_data['title'] = line.strip()
+    抖音视频页正文结构通常为：...当前视频标题...点赞/评论/收藏/转发...发布时间...作者...推荐视频...
+    必须先定位“发布时间”再向前回溯，避免把右侧推荐视频当成主视频。
+    """
+    lines = [line.strip() for line in text.split('\n')]
+    num_pat = re.compile(r'^\d+(?:\.\d+)?万?$|^\d+$')
+    
+    def is_metric(s):
+        return bool(num_pat.match(s.strip()))
+    
+    # 1) 优先根据“发布时间：YYYY-MM-DD HH:MM”向前找连续4个数字和标题
+    pub_matches = list(re.finditer(r'发布时间：(\d{4}-\d{2}-\d{2}[\s]\d{2}:\d{2})', text))
+    if pub_matches:
+        m = pub_matches[0]
+        video_data['publish_time'] = m.group(1)
+        before = text[:m.start()]
+        before_lines = [ln.strip() for ln in before.split('\n') if ln.strip()]
+        # 向前找连续4个指标数字
+        for i in range(len(before_lines) - 4, -1, -1):
+            window = before_lines[i:i+4]
+            if all(is_metric(x) for x in window):
+                video_data['likes'] = parse_count(window[0])
+                video_data['comments'] = parse_count(window[1])
+                video_data['collects'] = parse_count(window[2])
+                video_data['shares'] = parse_count(window[3])
+                # 标题通常是数字前最近的一条足够长文本，跳过“清屏/倍速/章节”等控件
+                for j in range(i - 1, max(-1, i - 12), -1):
+                    cand = before_lines[j]
+                    if len(cand) >= 8 and not any(bad in cand for bad in ['发布时间', '倍速', '清屏', '连播', '章节要点', '举报', '粉丝', '关注']):
+                        video_data['title'] = cand
+                        break
                 break
     
-    # 如果没找到标题，找包含"集"的行
+    # 2) 兜底：若未取到标题，找包含话题标签且长度合理的行；仍避免推荐区
     if not video_data['title']:
-        for line in lines:
-            if re.match(r'第\d+集', line):
-                video_data['title'] = line.strip()
-                break
-    
-    # 如果还没找到标题，找包含#话题标签且长度合理的行
-    if not video_data['title']:
-        for line in lines:
+        cutoff = pub_matches[0].start() if pub_matches else len(text)
+        for line in text[:cutoff].split('\n'):
             stripped = line.strip()
-            if '#' in stripped and len(stripped) > 10 and len(stripped) < 200:
+            if '#' in stripped and 8 < len(stripped) < 200:
                 video_data['title'] = stripped
                 break
     
-    # 查找作者
-    for i, line in enumerate(lines):
-        if line.strip() == '毕导':
+    # 3) 作者：主视频作者一般在发布时间附近，优先取发布时间后最近的“毕导”
+    if pub_matches:
+        after = text[pub_matches[0].end():pub_matches[0].end()+300]
+        if '毕导' in after:
             video_data['author'] = '毕导'
-            break
-    
-    # 查找互动数据 - 标题后面紧跟的数字
-    if video_data['title']:
-        title_idx = text.find(video_data['title'])
-        if title_idx >= 0:
-            after_title = text[title_idx + len(video_data['title']):title_idx + len(video_data['title']) + 200]
-            nums = re.findall(r'[\d.]+万?|\d+', after_title)
-            # 标题后前4个数字通常是：点赞、评论、收藏、转发
-            nums_parsed = []
-            for n in nums[:4]:
-                nums_parsed.append(parse_count(n))
-            
-            if len(nums_parsed) >= 4:
-                video_data['likes'] = nums_parsed[0]
-                video_data['comments'] = nums_parsed[1]
-                video_data['collects'] = nums_parsed[2]
-                video_data['shares'] = nums_parsed[3]
-            elif len(nums_parsed) >= 1:
-                video_data['likes'] = nums_parsed[0]
-    
-    # 查找发布时间
-    pub_match = re.search(r'发布时间：(\d{4}-\d{2}-\d{2}[\s]\d{2}:\d{2})', text)
-    if pub_match:
-        video_data['publish_time'] = pub_match.group(1)
+    if not video_data['author'] and '毕导' in text:
+        video_data['author'] = '毕导'
     
     return video_data
 
