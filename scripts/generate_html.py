@@ -138,6 +138,15 @@ def generate_html():
             total_growth = latest['view'] - first['view']
             growth = f'<div class="growth-badge">+{format_number(total_growth)}</div>'
         
+        # 平台跳转链接
+        platform_links = []
+        if bvid:
+            platform_links.append(f'<a class="platform-link link-bilibili" href="https://www.bilibili.com/video/{bvid}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">▶ B站</a>')
+        douyin_id = video.get('douyin_video_id')
+        if douyin_id:
+            platform_links.append(f'<a class="platform-link link-douyin" href="https://www.douyin.com/video/{douyin_id}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">🎵 抖音</a>')
+        platform_links_html = f'<div class="platform-links">{"".join(platform_links)}</div>' if platform_links else ''
+
         # 抖音数据行
         douyin_stats_html = ''
         if bvid in douyin_datasets:
@@ -194,6 +203,7 @@ def generate_html():
             <span class="meta-item">{video['created_str']}</span>
             <span class="meta-item">D+{(datetime.now() - datetime.fromtimestamp(video['created'])).days}</span>
           </div>
+          {platform_links_html}
           <div class="video-stats">
             <div class="stat-pill">▶ {format_number(latest['view'])}</div>
             <div class="stat-pill">❤ {format_number(latest['like'])}</div>
@@ -259,6 +269,9 @@ def generate_html():
             <span class="meta-item dy-author">@{dy_author}</span>
             <span class="meta-item">{created_str}</span>
             <span class="meta-item">D+{days_since}</span>
+          </div>
+          <div class="platform-links">
+            <a class="platform-link link-douyin" href="https://www.douyin.com/video/{dy_vid}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">🎵 抖音</a>
           </div>
           <div class="video-stats douyin-stats">
             <span class="platform-tag-douyin">抖音</span>
@@ -1009,6 +1022,50 @@ def generate_html():
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+    }
+
+    .platform-links {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .platform-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 12px;
+      border-radius: 3px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+    }
+
+    .link-bilibili {
+      background: rgba(0, 161, 214, 0.12);
+      color: #00a1d6;
+      border-color: rgba(0, 161, 214, 0.35);
+    }
+
+    .link-bilibili:hover {
+      background: #00a1d6;
+      color: #fff;
+    }
+
+    .link-douyin {
+      background: rgba(254, 44, 85, 0.12);
+      color: #fe2c55;
+      border-color: rgba(254, 44, 85, 0.35);
+    }
+
+    .link-douyin:hover {
+      background: #fe2c55;
+      color: #fff;
     }
     
     .stat-pill {
