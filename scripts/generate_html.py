@@ -145,7 +145,7 @@ def generate_html():
         douyin_id = video.get('douyin_video_id')
         if douyin_id:
             platform_links.append(f'<a class="platform-link link-douyin" href="https://www.douyin.com/video/{douyin_id}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">🎵 抖音</a>')
-        platform_links_html = f'<div class="platform-links">{"".join(platform_links)}</div>' if platform_links else ''
+        platform_links_html = f'<div class="platform-links"><span class="platform-links-label">视频链接：</span>{"".join(platform_links)}</div>' if platform_links else ''
 
         # 抖音数据行
         douyin_stats_html = ''
@@ -271,6 +271,7 @@ def generate_html():
             <span class="meta-item">D+{days_since}</span>
           </div>
           <div class="platform-links">
+            <span class="platform-links-label">视频链接：</span>
             <a class="platform-link link-douyin" href="https://www.douyin.com/video/{dy_vid}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">🎵 抖音</a>
           </div>
           <div class="video-stats douyin-stats">
@@ -1029,6 +1030,15 @@ def generate_html():
       gap: 8px;
       margin-bottom: 12px;
       flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .platform-links-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: #888;
+      font-weight: 700;
+      letter-spacing: 0.5px;
     }
 
     .platform-link {
