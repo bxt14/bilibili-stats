@@ -2,13 +2,13 @@
   "video_id": "7672723440238873906",
   "title": "我带着100个问题，闯进宝洁研发中心。宝洁：？？？",
   "author": "毕导",
-  "likes": 25911,
-  "comments": 125,
-  "collects": 139,
-  "shares": 37,
+  "likes": 32030,
+  "comments": 144,
+  "collects": 236,
+  "shares": 56,
   "publish_time": "2026-08-12",
   "source_url": "https://www.douyin.com/video/7672723440238873906",
-  "fetch_time": "2026-08-12 21:32:00",
+  "fetch_time": "2026-08-13 00:16:30",
   "history": [
     {
       "fetch_time": "2026-08-12 21:32:00",
@@ -16,6 +16,14 @@
       "comments": 125,
       "collects": 139,
       "shares": 37,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-08-13 00:16:30",
+      "likes": 32030,
+      "comments": 144,
+      "shares": 56,
+      "collects": 236,
       "plays": 0
     }
   ]
