@@ -2,7 +2,7 @@
 # 每月1号清理git历史，将所有提交压缩为一个快照
 set -e
 
-REPO_DIR="/app/data/所有对话/主对话/bilibili-stats"
+REPO_DIR="/Coze/Drive/运营实习生/所有对话/主对话/bilibili-stats"
 cd "$REPO_DIR"
 
 echo "[$(date)] 开始清理git历史..."
