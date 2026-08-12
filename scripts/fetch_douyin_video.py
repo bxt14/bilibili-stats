@@ -1,29 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-抖音视频数据采集脚本 - 通过Chrome CDP连接真实浏览器
-绕过抖音反爬检测，采集视频数据（标题、点赞、评论、收藏、转发）
+抖音视频数据采集脚本 - 移动端分享页 API 方案
+
+通过 iesdouyin 移动端分享页获取视频数据（标题、点赞、评论、收藏、转发），
+不依赖 Chrome/Playwright，纯 HTTP + 正则/JSON 解析。
+
+采集策略：
+  1. 请求 https://www.iesdouyin.com/share/video/{video_id}/ （iPhone UA）
+  2. 优先从 _ROUTER_DATA JSON 中提取 videoInfoRes.item_list[0]
+  3. JSON 无数据时降级为正则提取（兼容旧版/不同IP返回的HTML格式）
+  4. 全0值时自动重试最多3次，间隔2秒
 
 使用方式：
-  1. 确保云电脑上Chrome已启动CDP：google-chrome --remote-debugging-port=9222 ...
-  2. python3 fetch_douyin_video.py <视频链接或ID>
-
-或者脚本会自动管理Chrome生命周期。
+  python3 fetch_douyin_video.py <视频链接或ID> [更多链接...]
+  示例:
+    python3 fetch_douyin_video.py https://v.douyin.com/xxxxx/
+    python3 fetch_douyin_video.py 7639283518668836115
 """
 import json
 import os
 import re
-import subprocess
 import sys
 import time
+import urllib.request
+import urllib.error
 from datetime import datetime
-
-try:
-    from playwright.sync_api import sync_playwright
-except ImportError:
-    print("需要安装playwright: pip3 install playwright && playwright install chromium")
-    sys.exit(1)
-
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import config
@@ -32,16 +34,29 @@ BASE_DIR = config.BASE_DIR
 DATA_DIR = config.DATA_DIR
 DOUYIN_VIDEOS_DIR = config.DOUYIN_VIDEOS_DIR
 
-CDP_PORT = config.CDP_PORT
-CHROME_USER_DATA = config.CHROME_USER_DATA  # 项目目录下，不再用/tmp（会被系统清理）
-DISPLAY_NUM = config.DISPLAY_NUM
+# ============ 移动端 API 配置 ============
+MOBILE_UA = (
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) '
+    'AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 '
+    'Mobile/15E148 Safari/604.1'
+)
+
+SHARE_URL_TEMPLATE = 'https://www.iesdouyin.com/share/video/{video_id}/'
+
+# 重试配置
+MAX_RETRIES = 3
+RETRY_INTERVAL = 2  # 秒
+REQUEST_TIMEOUT = 15  # 秒
+
+# 视频间采集间隔（秒）
+COLLECT_INTERVAL = 1
 
 
 def parse_count(text):
-    """解析抖音的数量文本，如 '12.7万' -> 127000, '1236' -> 1236"""
+    """解析数量文本，如 '12.7万' -> 127000, '1236' -> 1236"""
     if not text:
         return 0
-    text = text.strip().replace(',', '').replace(' ', '')
+    text = str(text).strip().replace(',', '').replace(' ', '')
     try:
         if '亿' in text:
             return int(float(text.replace('亿', '')) * 100000000)
@@ -53,158 +68,117 @@ def parse_count(text):
         return 0
 
 
-def ensure_chrome_running():
-    """确保Chrome CDP实例正在运行"""
-    import requests
-    try:
-        resp = requests.get(f'http://localhost:{CDP_PORT}/json/version', timeout=3)
-        if resp.status_code == 200:
-            print(f"  Chrome CDP已在运行 (端口{CDP_PORT})")
-            return False  # 不需要关闭
-    except:
-        pass
-    
-    # 启动Chrome
-    print(f"  启动Chrome CDP (端口{CDP_PORT})...")
-    
-    # 确保虚拟显示器运行
-    result = subprocess.run(['pgrep', '-f', f'Xvfb :{DISPLAY_NUM}'], capture_output=True)
-    if result.returncode != 0:
-        subprocess.Popen(['Xvfb', f':{DISPLAY_NUM}', '-screen', '0', '1920x1080x24', '-ac'],
-                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(1)
-    
-    # 启动Chrome
-    chrome_cmd = [
-        'google-chrome',
-        f'--remote-debugging-port={CDP_PORT}',
-        '--no-first-run',
-        '--no-default-browser-check',
-        f'--user-data-dir={CHROME_USER_DATA}',
-        '--disable-blink-features=AutomationControlled',
-        '--no-sandbox',
-        '--headless=new',
-        'about:blank'
-    ]
-    
-    env = os.environ.copy()
-    env['DISPLAY'] = f':{DISPLAY_NUM}'
-    
-    subprocess.Popen(chrome_cmd, env=env,
-                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    
-    # 等待CDP就绪
-    for _ in range(15):
-        try:
-            resp = requests.get(f'http://localhost:{CDP_PORT}/json/version', timeout=2)
-            if resp.status_code == 200:
-                print(f"  Chrome CDP就绪")
-                return True
-        except:
-            pass
-        time.sleep(1)
-    
-    raise RuntimeError("Chrome CDP启动超时")
-
-
 def resolve_short_url(url):
-    """解析短链接，获取实际视频ID和长链接"""
+    """解析短链接，获取实际视频ID。
+
+    Returns:
+        tuple: (video_id, resolved_url)
+    """
     # 如果已经是长链接，直接提取ID
     match = re.search(r'/video/(\d+)', url)
     if match:
         return match.group(1), url
-    
-    # 尝试requests解析短链接
-    import requests
+
+    # 纯数字ID
+    if re.match(r'^\d+$', url):
+        return url, SHARE_URL_TEMPLATE.format(video_id=url)
+
+    # 尝试解析短链接（跟随重定向）
     try:
-        resp = requests.head(url, allow_redirects=True, timeout=10,
-                           headers={'User-Agent': 'Mozilla/5.0'})
-        final_url = resp.url
-        match = re.search(r'/video/(\d+)', final_url)
-        if match:
-            return match.group(1), final_url
-    except:
+        req = urllib.request.Request(
+            url,
+            headers={'User-Agent': MOBILE_UA},
+            method='HEAD',
+        )
+        with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
+            final_url = resp.url
+            match = re.search(r'/video/(\d+)', final_url)
+            if match:
+                return match.group(1), final_url
+    except Exception:
         pass
-    
+
+    # GET 方式兜底（某些短链不支持HEAD）
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={'User-Agent': MOBILE_UA},
+        )
+        with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
+            final_url = resp.url
+            match = re.search(r'/video/(\d+)', final_url)
+            if match:
+                return match.group(1), final_url
+    except Exception:
+        pass
+
     return None, url
 
 
-def fetch_douyin_video(video_url):
-    """
-    通过Chrome CDP采集抖音视频数据
-    
-    Args:
-        video_url: 抖音视频链接（短链接或长链接）
-    
-    Returns:
-        dict: 视频数据
-    """
-    video_id, resolved_url = resolve_short_url(video_url)
-    
-    if not resolved_url.startswith('https://www.douyin.com'):
-        resolved_url = video_url
-    
-    print(f"  采集: {video_url}")
-    if video_id:
-        print(f"  视频ID: {video_id}")
-    
-    # 确保Chrome运行
-    ensure_chrome_running()
-    
-    with sync_playwright() as p:
-        browser = p.chromium.connect_over_cdp(f'http://localhost:{CDP_PORT}')
-        
-        # 使用已有context或创建新的
-        if browser.contexts:
-            context = browser.contexts[0]
-        else:
-            context = browser.new_context(
-                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-                viewport={'width': 1920, 'height': 1080},
-                locale='zh-CN',
-            )
-        
-        page = context.new_page()
-        
-        # Anti-detection
-        page.add_init_script("""
-            Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-            delete navigator.__proto__.webdriver;
-        """)
-        
-        try:
-            # 先访问首页获取cookies
-            page.goto('https://www.douyin.com/', wait_until='domcontentloaded', timeout=20000)
-            time.sleep(3)
-            
-            # 访问视频页
-            page.goto(resolved_url, wait_until='domcontentloaded', timeout=30000)
-            time.sleep(8)
-            
-            # 获取最终URL中的视频ID
-            final_url = page.url
-            if not video_id:
-                match = re.search(r'/video/(\d+)', final_url)
-                if match:
-                    video_id = match.group(1)
-            
-            # 提取视频数据
-            video_data = _parse_video_page(page, video_id)
-            video_data['video_id'] = video_id or ''
-            video_data['source_url'] = video_url
-            video_data['fetch_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            
-            return video_data
-            
-        except Exception as e:
-            print(f"  采集失败: {e}")
-            return None
-        finally:
-            page.close()
+def _fetch_html(video_id):
+    """请求移动端分享页，返回 HTML 文本。"""
+    url = SHARE_URL_TEMPLATE.format(video_id=video_id)
+    req = urllib.request.Request(url, headers={
+        'User-Agent': MOBILE_UA,
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+    })
+    with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
+        return resp.read().decode('utf-8', errors='replace')
 
 
-def _parse_video_page(page, video_id):
-    """从视频页面提取数据"""
+def _extract_router_data(html):
+    """从 HTML 中提取 window._ROUTER_DATA JSON 对象。"""
+    marker = 'window._ROUTER_DATA'
+    idx = html.find(marker)
+    if idx < 0:
+        return None
+
+    eq_pos = html.find('=', idx)
+    if eq_pos < 0:
+        return None
+
+    start = eq_pos + 1
+    # 跳过空白
+    while start < len(html) and html[start] in ' \t\r\n':
+        start += 1
+    if start >= len(html) or html[start] != '{':
+        return None
+
+    # 括号匹配提取完整 JSON
+    depth = 0
+    end = start
+    in_string = False
+    escape = False
+    for i in range(start, len(html)):
+        ch = html[i]
+        if escape:
+            escape = False
+            continue
+        if ch == '\\':
+            escape = True
+            continue
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if ch == '{':
+            depth += 1
+        elif ch == '}':
+            depth -= 1
+            if depth == 0:
+                end = i + 1
+                break
+
+    try:
+        return json.loads(html[start:end].strip().rstrip(';'))
+    except (json.JSONDecodeError, ValueError):
+        return None
+
+
+def _parse_from_router_data(router_data, video_id):
+    """从 _ROUTER_DATA JSON 中提取视频数据（新版SSR路径）。"""
     video_data = {
         'video_id': video_id or '',
         'title': '',
@@ -213,151 +187,227 @@ def _parse_video_page(page, video_id):
         'comments': 0,
         'collects': 0,
         'shares': 0,
+        'plays': 0,
         'publish_time': '',
     }
-    
-    # 方法1: 从RENDER_DATA提取（最准确）
+
     try:
-        render_data = page.evaluate('''() => {
-            const el = document.getElementById('RENDER_DATA');
-            if (el) return decodeURIComponent(el.textContent);
-            return null;
-        }''')
-        
-        if render_data:
-            data = json.loads(render_data)
-            dump = json.dumps(data)
-            
-            # 查找awemeDetail
-            if 'awemeDetail' in dump:
-                aweme = _find_in_json(data, 'awemeDetail')
-                if aweme:
-                    stats = aweme.get('statistics', {})
-                    author = aweme.get('authorInfo', {})
-                    video_data['title'] = aweme.get('desc', '')
-                    video_data['author'] = author.get('nickname', '')
-                    video_data['likes'] = stats.get('diggCount', 0)
-                    video_data['comments'] = stats.get('commentCount', 0)
-                    video_data['collects'] = stats.get('collectCount', 0)
-                    video_data['shares'] = stats.get('shareCount', 0)
-                    video_data['plays'] = stats.get('playCount', 0)
-                    create_ts = aweme.get('createTime', 0)
-                    if create_ts:
-                        video_data['publish_time'] = datetime.fromtimestamp(int(create_ts)).strftime('%Y-%m-%d %H:%M')
-                    return video_data
+        page_data = (
+            router_data.get('loaderData', {})
+            .get('video_(id)/page', {})
+        )
+        if not page_data:
+            return None
+
+        # 路径1: videoInfoRes.item_list[0]（标准SSR格式）
+        video_info_res = page_data.get('videoInfoRes')
+        if not video_info_res:
+            return None
+
+        item_list = video_info_res.get('item_list', [])
+        if not item_list:
+            # 有些版本在 filter_list 中
+            filter_list = video_info_res.get('filter_list', [])
+            if filter_list:
+                item_list = [f.get('aweme_info', {}) for f in filter_list if f.get('aweme_info')]
+
+        if not item_list:
+            return None
+
+        item = item_list[0]
+        stats = item.get('statistics', item.get('stats', {}))
+
+        video_data['title'] = item.get('desc', '')
+        author_info = item.get('author', item.get('authorInfo', {}))
+        video_data['author'] = author_info.get('nickname', '')
+        video_data['likes'] = int(stats.get('digg_count', stats.get('diggCount', 0)) or 0)
+        video_data['comments'] = int(stats.get('comment_count', stats.get('commentCount', 0)) or 0)
+        video_data['collects'] = int(stats.get('collect_count', stats.get('collectCount', 0)) or 0)
+        video_data['shares'] = int(stats.get('share_count', stats.get('shareCount', 0)) or 0)
+        video_data['plays'] = int(stats.get('play_count', stats.get('playCount', 0)) or 0)
+
+        create_ts = item.get('create_time', item.get('createTime', 0))
+        if create_ts:
+            video_data['publish_time'] = datetime.fromtimestamp(
+                int(create_ts)
+            ).strftime('%Y-%m-%d %H:%M')
+
+        vid = item.get('aweme_id', '')
+        if vid:
+            video_data['video_id'] = str(vid)
+
+        return video_data
+
     except Exception as e:
-        print(f"  RENDER_DATA解析失败: {e}")
-    
-    # 方法2: 从页面DOM文本提取（失败时重试最多2次）
-    max_retries = 2
-    for attempt in range(max_retries + 1):
+        print(f"  _ROUTER_DATA 解析异常: {e}")
+        return None
+
+
+def _parse_from_regex(html, video_id):
+    """从 HTML 中正则提取视频数据（降级方案，兼容旧格式）。"""
+    video_data = {
+        'video_id': video_id or '',
+        'title': '',
+        'author': '',
+        'likes': 0,
+        'comments': 0,
+        'collects': 0,
+        'shares': 0,
+        'plays': 0,
+        'publish_time': '',
+    }
+
+    patterns = {
+        'likes': r'digg_count["\s:]+(\d+)',
+        'comments': r'comment_count["\s:]+(\d+)',
+        'shares': r'share_count["\s:]+(\d+)',
+        'collects': r'collect_count["\s:]+(\d+)',
+        'plays': r'play_count["\s:]+(\d+)',
+    }
+
+    for field, pattern in patterns.items():
+        m = re.search(pattern, html)
+        if m:
+            try:
+                video_data[field] = int(m.group(1))
+            except (ValueError, IndexError):
+                pass
+
+    # 标题
+    m = re.search(r'"desc":"([^"]{5,200})"', html)
+    if m:
+        # 处理转义字符
+        title = m.group(1)
+        title = title.replace('\\n', '\n').replace('\\"', '"').replace('\\/', '/')
+        video_data['title'] = title
+
+    # 作者
+    m = re.search(r'"nickname":"([^"]+)"', html)
+    if m:
+        video_data['author'] = m.group(1).replace('\\"', '"')
+
+    # 发布时间
+    m = re.search(r'create_time["\s:]+(\d+)', html)
+    if m:
         try:
-            text = page.inner_text('body', timeout=30000)
-            video_data = _parse_from_text(text, video_data)
-            break
-        except Exception as e:
-            if attempt < max_retries:
-                print(f"  DOM解析失败(第{attempt+1}次)，等待5秒后重试...")
-                time.sleep(5)
-                try:
-                    page.reload(wait_until='domcontentloaded', timeout=20000)
-                    time.sleep(5)
-                except:
-                    pass
-            else:
-                print(f"  DOM解析失败(已重试{max_retries}次): {e}")
-    
+            ts = int(m.group(1))
+            video_data['publish_time'] = datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M')
+        except (ValueError, OSError):
+            pass
+
     return video_data
 
 
-def _find_in_json(data, key, depth=0):
-    """递归查找JSON中的key"""
-    if depth > 5:
-        return None
-    if isinstance(data, dict):
-        if key in data:
-            return data[key]
-        for v in data.values():
-            result = _find_in_json(v, key, depth + 1)
-            if result:
-                return result
-    return None
+def fetch_douyin_video(video_url):
+    """通过移动端分享页 API 采集抖音视频数据。
 
+    Args:
+        video_url: 抖音视频链接（短链接、长链接或纯数字ID）
 
-def _parse_from_text(text, video_data):
-    """从页面文本提取视频数据（备用方案）。
-    
-    抖音视频页正文结构通常为：...当前视频标题...点赞/评论/收藏/转发...发布时间...作者...推荐视频...
-    必须先定位“发布时间”再向前回溯，避免把右侧推荐视频当成主视频。
+    Returns:
+        dict: 视频数据，失败返回 None
     """
-    lines = [line.strip() for line in text.split('\n')]
-    num_pat = re.compile(r'^\d+(?:\.\d+)?万?$|^\d+$')
-    
-    def is_metric(s):
-        return bool(num_pat.match(s.strip()))
-    
-    # 1) 优先根据“发布时间：YYYY-MM-DD HH:MM”向前找连续4个数字和标题
-    pub_matches = list(re.finditer(r'发布时间：(\d{4}-\d{2}-\d{2}[\s]\d{2}:\d{2})', text))
-    if pub_matches:
-        m = pub_matches[0]
-        video_data['publish_time'] = m.group(1)
-        before = text[:m.start()]
-        before_lines = [ln.strip() for ln in before.split('\n') if ln.strip()]
-        # 向前找连续4个指标数字
-        for i in range(len(before_lines) - 4, -1, -1):
-            window = before_lines[i:i+4]
-            if all(is_metric(x) for x in window):
-                video_data['likes'] = parse_count(window[0])
-                video_data['comments'] = parse_count(window[1])
-                video_data['collects'] = parse_count(window[2])
-                video_data['shares'] = parse_count(window[3])
-                # 标题通常是数字前最近的一条足够长文本，跳过“清屏/倍速/章节”等控件
-                for j in range(i - 1, max(-1, i - 12), -1):
-                    cand = before_lines[j]
-                    if len(cand) >= 8 and not any(bad in cand for bad in ['发布时间', '倍速', '清屏', '连播', '章节要点', '举报', '粉丝', '关注']):
-                        video_data['title'] = cand
-                        break
+    video_id, resolved_url = resolve_short_url(video_url)
+
+    if not video_id:
+        print(f"  无法解析视频ID: {video_url}")
+        return None
+
+    # 如果传入的是短链且没有解析到 iesdouyin URL，构造标准URL
+    if not resolved_url or 'iesdouyin.com' not in resolved_url:
+        resolved_url = SHARE_URL_TEMPLATE.format(video_id=video_id)
+
+    print(f"  采集: {video_url}")
+    print(f"  视频ID: {video_id}")
+
+    video_data = None
+    last_error = None
+
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            html = _fetch_html(video_id)
+
+            # 优先从 _ROUTER_DATA JSON 解析
+            router_data = _extract_router_data(html)
+            if router_data:
+                parsed = _parse_from_router_data(router_data, video_id)
+                if parsed and (parsed.get('likes', 0) > 0 or parsed.get('title')):
+                    video_data = parsed
+                    break
+
+            # 降级：正则提取
+            parsed = _parse_from_regex(html, video_id)
+            if parsed and parsed.get('likes', 0) > 0:
+                video_data = parsed
                 break
-    
-    # 2) 兜底：若未取到标题，找包含话题标签且长度合理的行；仍避免推荐区
-    if not video_data['title']:
-        cutoff = pub_matches[0].start() if pub_matches else len(text)
-        for line in text[:cutoff].split('\n'):
-            stripped = line.strip()
-            if '#' in stripped and 8 < len(stripped) < 200:
-                video_data['title'] = stripped
+
+            # 如果拿到了标题但数据全0，可能是页面未加载完整，重试
+            if parsed and parsed.get('title'):
+                video_data = parsed
+                if attempt < MAX_RETRIES:
+                    print(f"  数据全0，第{attempt}次重试（间隔{RETRY_INTERVAL}s）...")
+                    time.sleep(RETRY_INTERVAL)
+                    continue
+                # 重试用完，接受当前数据
                 break
-    
-    # 3) 作者：主视频作者一般在发布时间附近，优先取发布时间后最近的“毕导”
-    if pub_matches:
-        after = text[pub_matches[0].end():pub_matches[0].end()+300]
-        if '毕导' in after:
-            video_data['author'] = '毕导'
-    if not video_data['author'] and '毕导' in text:
-        video_data['author'] = '毕导'
-    
+
+            # 没拿到任何数据
+            if attempt < MAX_RETRIES:
+                print(f"  未获取到数据，第{attempt}次重试（间隔{RETRY_INTERVAL}s）...")
+                time.sleep(RETRY_INTERVAL)
+            else:
+                print(f"  {MAX_RETRIES}次尝试后仍未获取到数据（页面可能已改版或视频不可用）")
+
+        except urllib.error.HTTPError as e:
+            last_error = f"HTTP {e.code}: {e.reason}"
+            print(f"  HTTP错误: {last_error}")
+            if e.code == 404:
+                # 视频不存在，不重试
+                break
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_INTERVAL)
+        except Exception as e:
+            last_error = str(e)
+            print(f"  请求异常(第{attempt}次): {e}")
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_INTERVAL)
+
+    if not video_data:
+        if last_error:
+            print(f"  采集失败: {last_error}")
+        return None
+
+    # 补全元数据
+    if not video_data.get('video_id'):
+        video_data['video_id'] = video_id
+    video_data['source_url'] = video_url
+    video_data['fetch_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
     return video_data
 
 
 def save_video_data(video_data):
-    """保存视频数据到文件"""
+    """保存视频数据到 JSON 文件，追加 history 记录。"""
     if not video_data or not video_data.get('video_id'):
         print("  无有效数据，跳过保存")
         return
-    
+
     os.makedirs(DOUYIN_VIDEOS_DIR, exist_ok=True)
-    
+
     video_id = video_data['video_id']
     filepath = os.path.join(DOUYIN_VIDEOS_DIR, f'{video_id}.json')
-    
-    # 如果已有数据，追加历史记录
+
+    # 如果已有数据，读取历史记录
     history = []
     if os.path.exists(filepath):
-        with open(filepath, 'r', encoding='utf-8') as f:
-            existing = json.load(f)
-            history = existing.get('history', [])
-    
-    # 添加当前记录到历史
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                existing = json.load(f)
+                history = existing.get('history', [])
+        except (json.JSONDecodeError, IOError):
+            pass
+
+    # 构建本次记录
     record = {
         'fetch_time': video_data['fetch_time'],
         'likes': video_data.get('likes', 0),
@@ -366,36 +416,38 @@ def save_video_data(video_data):
         'shares': video_data.get('shares', 0),
         'plays': video_data.get('plays', 0),
     }
-    
-    # 数据校验：如果所有关键指标都是0，且历史数据不为空，说明采集失败，跳过保存
-    if record['likes'] == 0 and record['comments'] == 0 and record['collects'] == 0 and record['shares'] == 0:
-        if history and any(r.get('likes', 0) > 0 for r in history[-3:]):
-            print(f"  ⚠️ 采集数据全为0，疑似页面未加载完成，跳过此条记录")
-            # 不覆盖已有顶层数据，只保留history不变
-            return
-    
+
+    # 数据校验：全0且历史有正常数据，说明采集异常，跳过保存避免污染
+    all_zero = all(record[k] == 0 for k in ('likes', 'comments', 'collects', 'shares'))
+    if all_zero and history and any(r.get('likes', 0) > 0 for r in history[-3:]):
+        print(f"  ⚠️ 采集数据全为0，疑似获取失败，跳过此条记录（不覆盖已有数据）")
+        return
+
     history.append(record)
-    
-    # 更新视频数据
     video_data['history'] = history
-    
+
     with open(filepath, 'w', encoding='utf-8') as f:
         json.dump(video_data, f, ensure_ascii=False, indent=2)
-    
+
     print(f"  已保存: {filepath}")
-    print(f"  标题: {video_data.get('title', 'N/A')}")
-    print(f"  点赞: {video_data.get('likes', 0):,} | 评论: {video_data.get('comments', 0):,} | 收藏: {video_data.get('collects', 0):,} | 转发: {video_data.get('shares', 0):,}")
+    print(f"  标题: {video_data.get('title', 'N/A')[:60]}")
+    print(f"  作者: {video_data.get('author', 'N/A')}")
+    print(f"  点赞: {video_data.get('likes', 0):,} | "
+          f"评论: {video_data.get('comments', 0):,} | "
+          f"收藏: {video_data.get('collects', 0):,} | "
+          f"转发: {video_data.get('shares', 0):,}")
 
 
 def fetch_batch(video_urls):
-    """批量采集多个视频"""
+    """批量采集多个视频。"""
     results = []
-    for url in video_urls:
+    for i, url in enumerate(video_urls):
         data = fetch_douyin_video(url)
         if data:
             save_video_data(data)
             results.append(data)
-        time.sleep(3)  # 采集间隔
+        if i < len(video_urls) - 1:
+            time.sleep(COLLECT_INTERVAL)
     return results
 
 
@@ -403,25 +455,17 @@ def main():
     """命令行入口"""
     if len(sys.argv) < 2:
         print("用法: python3 fetch_douyin_video.py <视频链接或ID> [更多链接...]")
-        print("示例: python3 fetch_douyin_video.py https://v.douyin.com/kuJKhYj_CzY/")
-        print("      python3 fetch_douyin_video.py 7639283518668836115")
+        print("示例:")
+        print("  python3 fetch_douyin_video.py https://v.douyin.com/xxxxx/")
+        print("  python3 fetch_douyin_video.py 7639283518668836115")
         sys.exit(1)
-    
+
     urls = sys.argv[1:]
-    
-    # 处理纯数字的视频ID
-    processed_urls = []
-    for u in urls:
-        if re.match(r'^\d+$', u):
-            processed_urls.append(f'https://www.douyin.com/video/{u}')
-        else:
-            processed_urls.append(u)
-    
-    print(f"\n开始采集 {len(processed_urls)} 个抖音视频...")
-    
-    results = fetch_batch(processed_urls)
-    
-    print(f"\n采集完成！成功 {len(results)}/{len(processed_urls)} 个")
+    print(f"\n开始采集 {len(urls)} 个抖音视频（移动端API方案，无需Chrome）...")
+
+    results = fetch_batch(urls)
+
+    print(f"\n采集完成！成功 {len(results)}/{len(urls)} 个")
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 #!/bin/bash
 # 日级采集：粉丝数据 + 日频视频 + 抖音全量 + 生成HTML + git推送
-# 环境变量由 scripts/config.py 统一管理，此脚本只管流程
+# 抖音采集已改为移动端分享页API方案，不再依赖Chrome CDP
 set -o pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -31,10 +31,7 @@ if [ -f "$LOCKFILE" ]; then
     fi
 fi
 
-# 3. 清理Chrome残留标签页
-python3 -u scripts/cleanup_chrome_tabs.py >> "$LOG" 2>&1
-
-# 4. 创建锁文件后采集
+# 3. 创建锁文件后采集（移动端API，无需Chrome）
 date +%s > "$LOCKFILE"
 timeout 300 python3 -u scripts/fetch_douyin_batch.py --mode daily >> "$LOG" 2>&1
 DOUYIN_EXIT=$?
@@ -42,14 +39,12 @@ rm -f "$LOCKFILE"
 
 if [ "$DOUYIN_EXIT" -eq 124 ]; then
     echo "⚠️ 抖音采集超时(300s)" >> "$LOG" 2>&1
-    sleep 2
-    python3 -u scripts/cleanup_chrome_tabs.py >> "$LOG" 2>&1
 fi
 
-# 5. 生成HTML
+# 4. 生成HTML
 python3 -u scripts/generate_html.py >> "$LOG" 2>&1
 
-# 6. Git提交推送
+# 5. Git提交推送
 git add .
 if git diff --cached --quiet; then
     echo "no changes" >> "$LOG" 2>&1

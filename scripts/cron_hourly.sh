@@ -1,6 +1,7 @@
 #!/bin/bash
 # 小时级采集：B站视频 + 抖音视频 + 生成HTML + git推送
-# 环境变量由 scripts/config.py 统一管理，此脚本只管流程
+# 抖音采集已改为移动端分享页API方案，不再依赖Chrome CDP
+# B站采集使用HTTP API，同样不依赖Chrome
 set -o pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -39,31 +40,13 @@ if [ -f "$LOCKFILE" ]; then
     fi
 fi
 
-# 3. 检查Chrome CDP是否响应，超时则重启
-if ! curl -s --max-time 5 http://localhost:9222/json/version > /dev/null 2>&1; then
-    echo "Chrome CDP无响应，正在重启..." >> "$LOG" 2>&1
-    pkill -f "remote-debugging-port=9222" 2>/dev/null
-    sleep 2
-    nohup google-chrome --no-sandbox --disable-gpu --remote-debugging-port=9222 \
-        --no-first-run --no-default-browser-check \
-        --user-data-dir="$PROJ_DIR/chrome-profile" \
-        --disable-blink-features=AutomationControlled \
-        --headless=new about:blank > /dev/null 2>&1 &
-    sleep 3
-    if curl -s --max-time 5 http://localhost:9222/json/version > /dev/null 2>&1; then
-        echo "Chrome CDP重启成功" >> "$LOG" 2>&1
-    else
-        echo "Chrome CDP重启失败，跳过抖音采集" >> "$LOG" 2>&1
-    fi
-fi
-
-# 4. 抖音视频采集
+# 3. 抖音视频采集（移动端API，无需Chrome）
 timeout 300 python3 -u scripts/fetch_douyin_batch.py --mode hourly >> "$LOG" 2>&1
 
-# 5. 生成HTML
+# 4. 生成HTML
 python3 -u scripts/generate_html.py >> "$LOG" 2>&1
 
-# 6. Git提交推送
+# 5. Git提交推送
 git add .
 if git diff --cached --quiet; then
     echo "no changes" >> "$LOG" 2>&1
