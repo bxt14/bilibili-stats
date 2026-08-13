@@ -1,22 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-抖音视频数据采集脚本 - 移动端分享页 API 方案
+抖音视频数据采集脚本 - 抖音 App API 方案
 
-通过 iesdouyin 移动端分享页获取视频数据（标题、点赞、评论、收藏、转发），
-不依赖 Chrome/Playwright，纯 HTTP + 正则/JSON 解析。
+通过抖音 App 私有 API (api.amemv.com) 获取视频数据（标题、点赞、评论、收藏、转发），
+不依赖 Chrome/Playwright，不依赖签名（feed 接口无需 a_bogus），纯 HTTP + JSON 解析。
 
 采集策略：
-  1. 请求 https://www.iesdouyin.com/share/video/{video_id}/ （iPhone UA）
-  2. 优先从 _ROUTER_DATA JSON 中提取 videoInfoRes.item_list[0]
-  3. JSON 无数据时降级为正则提取（兼容旧版/不同IP返回的HTML格式）
-  4. 全0值时自动重试最多3次，间隔2秒
+  1. 请求 https://api.amemv.com/aweme/v1/feed/?aweme_id={video_id}
+  2. 从 aweme_list 中匹配目标视频，提取 statistics
+  3. 失败自动重试最多3次，间隔2秒
 
 使用方式：
   python3 fetch_douyin_video.py <视频链接或ID> [更多链接...]
-  示例:
-    python3 fetch_douyin_video.py https://v.douyin.com/xxxxx/
-    python3 fetch_douyin_video.py 7639283518668836115
 """
 import json
 import os
@@ -34,14 +30,16 @@ BASE_DIR = config.BASE_DIR
 DATA_DIR = config.DATA_DIR
 DOUYIN_VIDEOS_DIR = config.DOUYIN_VIDEOS_DIR
 
-# ============ 移动端 API 配置 ============
-MOBILE_UA = (
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) '
-    'AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 '
-    'Mobile/15E148 Safari/604.1'
+# ============ 抖音 App API 配置 ============
+# 使用 Android 抖音 App 的 UA，feed 接口无需签名即可返回数据
+APP_UA = (
+    'com.ss.android.ugc.aweme/2901 (Linux; U; Android 13; zh_CN; '
+    'Pixel 7; Build/TQ3A.230705.001; '
+    'Cronet/TTNetVersion:b4d74d15 2023-06-13 '
+    'QuicVersion:0144d358 2023-05-29)'
 )
 
-SHARE_URL_TEMPLATE = 'https://www.iesdouyin.com/share/video/{video_id}/'
+FEED_API = 'https://api.amemv.com/aweme/v1/feed/?aweme_id={video_id}'
 
 # 重试配置
 MAX_RETRIES = 3
@@ -69,118 +67,63 @@ def parse_count(text):
 
 
 def resolve_short_url(url):
-    """解析短链接，获取实际视频ID。
-
-    Returns:
-        tuple: (video_id, resolved_url)
-    """
+    """解析短链接，获取实际视频ID。"""
     # 如果已经是长链接，直接提取ID
     match = re.search(r'/video/(\d+)', url)
     if match:
-        return match.group(1), url
+        return match.group(1)
 
     # 纯数字ID
     if re.match(r'^\d+$', url):
-        return url, SHARE_URL_TEMPLATE.format(video_id=url)
+        return url
 
     # 尝试解析短链接（跟随重定向）
     try:
         req = urllib.request.Request(
             url,
-            headers={'User-Agent': MOBILE_UA},
+            headers={'User-Agent': APP_UA},
             method='HEAD',
         )
         with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
             final_url = resp.url
             match = re.search(r'/video/(\d+)', final_url)
             if match:
-                return match.group(1), final_url
+                return match.group(1)
     except Exception:
         pass
 
-    # GET 方式兜底（某些短链不支持HEAD）
+    # GET 方式兜底
     try:
         req = urllib.request.Request(
             url,
-            headers={'User-Agent': MOBILE_UA},
+            headers={'User-Agent': APP_UA},
         )
         with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
             final_url = resp.url
             match = re.search(r'/video/(\d+)', final_url)
             if match:
-                return match.group(1), final_url
+                return match.group(1)
     except Exception:
         pass
 
-    return None, url
+    return None
 
 
-def _fetch_html(video_id):
-    """请求移动端分享页，返回 HTML 文本。"""
-    url = SHARE_URL_TEMPLATE.format(video_id=video_id)
+def _fetch_feed(video_id):
+    """请求抖音 App feed API，返回 JSON 数据。"""
+    url = FEED_API.format(video_id=video_id)
     req = urllib.request.Request(url, headers={
-        'User-Agent': MOBILE_UA,
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'zh-CN,zh;q=0.9',
+        'User-Agent': APP_UA,
+        'Accept': 'application/json',
     })
     with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
-        return resp.read().decode('utf-8', errors='replace')
+        return json.loads(resp.read().decode('utf-8'))
 
 
-def _extract_router_data(html):
-    """从 HTML 中提取 window._ROUTER_DATA JSON 对象。"""
-    marker = 'window._ROUTER_DATA'
-    idx = html.find(marker)
-    if idx < 0:
-        return None
-
-    eq_pos = html.find('=', idx)
-    if eq_pos < 0:
-        return None
-
-    start = eq_pos + 1
-    # 跳过空白
-    while start < len(html) and html[start] in ' \t\r\n':
-        start += 1
-    if start >= len(html) or html[start] != '{':
-        return None
-
-    # 括号匹配提取完整 JSON
-    depth = 0
-    end = start
-    in_string = False
-    escape = False
-    for i in range(start, len(html)):
-        ch = html[i]
-        if escape:
-            escape = False
-            continue
-        if ch == '\\':
-            escape = True
-            continue
-        if ch == '"':
-            in_string = not in_string
-            continue
-        if in_string:
-            continue
-        if ch == '{':
-            depth += 1
-        elif ch == '}':
-            depth -= 1
-            if depth == 0:
-                end = i + 1
-                break
-
-    try:
-        return json.loads(html[start:end].strip().rstrip(';'))
-    except (json.JSONDecodeError, ValueError):
-        return None
-
-
-def _parse_from_router_data(router_data, video_id):
-    """从 _ROUTER_DATA JSON 中提取视频数据（新版SSR路径）。"""
+def _parse_feed(data, video_id):
+    """从 feed API 响应中提取目标视频数据。"""
     video_data = {
-        'video_id': video_id or '',
+        'video_id': video_id,
         'title': '',
         'author': '',
         'likes': 0,
@@ -191,115 +134,48 @@ def _parse_from_router_data(router_data, video_id):
         'publish_time': '',
     }
 
-    try:
-        page_data = (
-            router_data.get('loaderData', {})
-            .get('video_(id)/page', {})
-        )
-        if not page_data:
-            return None
+    aweme_list = data.get('aweme_list', [])
+    if not aweme_list:
+        return None
 
-        # 路径1: videoInfoRes.item_list[0]（标准SSR格式）
-        video_info_res = page_data.get('videoInfoRes')
-        if not video_info_res:
-            return None
+    # 优先匹配目标 aweme_id
+    aweme = None
+    for item in aweme_list:
+        if str(item.get('aweme_id', '')) == str(video_id):
+            aweme = item
+            break
+    if not aweme:
+        aweme = aweme_list[0]
 
-        item_list = video_info_res.get('item_list', [])
-        if not item_list:
-            # 有些版本在 filter_list 中
-            filter_list = video_info_res.get('filter_list', [])
-            if filter_list:
-                item_list = [f.get('aweme_info', {}) for f in filter_list if f.get('aweme_info')]
+    stats = aweme.get('statistics', {})
+    video_data['likes'] = int(stats.get('digg_count', 0) or 0)
+    video_data['comments'] = int(stats.get('comment_count', 0) or 0)
+    video_data['collects'] = int(stats.get('collect_count', 0) or 0)
+    video_data['shares'] = int(stats.get('share_count', 0) or 0)
+    video_data['plays'] = int(stats.get('play_count', 0) or 0)
 
-        if not item_list:
-            return None
+    video_data['title'] = aweme.get('desc', '')
+    author_info = aweme.get('author', {})
+    video_data['author'] = author_info.get('nickname', '')
 
-        item = item_list[0]
-        stats = item.get('statistics', item.get('stats', {}))
-
-        video_data['title'] = item.get('desc', '')
-        author_info = item.get('author', item.get('authorInfo', {}))
-        video_data['author'] = author_info.get('nickname', '')
-        video_data['likes'] = int(stats.get('digg_count', stats.get('diggCount', 0)) or 0)
-        video_data['comments'] = int(stats.get('comment_count', stats.get('commentCount', 0)) or 0)
-        video_data['collects'] = int(stats.get('collect_count', stats.get('collectCount', 0)) or 0)
-        video_data['shares'] = int(stats.get('share_count', stats.get('shareCount', 0)) or 0)
-        video_data['plays'] = int(stats.get('play_count', stats.get('playCount', 0)) or 0)
-
-        create_ts = item.get('create_time', item.get('createTime', 0))
-        if create_ts:
+    create_ts = aweme.get('create_time', 0)
+    if create_ts:
+        try:
             video_data['publish_time'] = datetime.fromtimestamp(
                 int(create_ts)
             ).strftime('%Y-%m-%d %H:%M')
-
-        vid = item.get('aweme_id', '')
-        if vid:
-            video_data['video_id'] = str(vid)
-
-        return video_data
-
-    except Exception as e:
-        print(f"  _ROUTER_DATA 解析异常: {e}")
-        return None
-
-
-def _parse_from_regex(html, video_id):
-    """从 HTML 中正则提取视频数据（降级方案，兼容旧格式）。"""
-    video_data = {
-        'video_id': video_id or '',
-        'title': '',
-        'author': '',
-        'likes': 0,
-        'comments': 0,
-        'collects': 0,
-        'shares': 0,
-        'plays': 0,
-        'publish_time': '',
-    }
-
-    patterns = {
-        'likes': r'digg_count["\s:]+(\d+)',
-        'comments': r'comment_count["\s:]+(\d+)',
-        'shares': r'share_count["\s:]+(\d+)',
-        'collects': r'collect_count["\s:]+(\d+)',
-        'plays': r'play_count["\s:]+(\d+)',
-    }
-
-    for field, pattern in patterns.items():
-        m = re.search(pattern, html)
-        if m:
-            try:
-                video_data[field] = int(m.group(1))
-            except (ValueError, IndexError):
-                pass
-
-    # 标题
-    m = re.search(r'"desc":"([^"]{5,200})"', html)
-    if m:
-        # 处理转义字符
-        title = m.group(1)
-        title = title.replace('\\n', '\n').replace('\\"', '"').replace('\\/', '/')
-        video_data['title'] = title
-
-    # 作者
-    m = re.search(r'"nickname":"([^"]+)"', html)
-    if m:
-        video_data['author'] = m.group(1).replace('\\"', '"')
-
-    # 发布时间
-    m = re.search(r'create_time["\s:]+(\d+)', html)
-    if m:
-        try:
-            ts = int(m.group(1))
-            video_data['publish_time'] = datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M')
         except (ValueError, OSError):
             pass
+
+    aweme_id = aweme.get('aweme_id', '')
+    if aweme_id:
+        video_data['video_id'] = str(aweme_id)
 
     return video_data
 
 
 def fetch_douyin_video(video_url):
-    """通过移动端分享页 API 采集抖音视频数据。
+    """通过抖音 App API 采集抖音视频数据。
 
     Args:
         video_url: 抖音视频链接（短链接、长链接或纯数字ID）
@@ -307,15 +183,11 @@ def fetch_douyin_video(video_url):
     Returns:
         dict: 视频数据，失败返回 None
     """
-    video_id, resolved_url = resolve_short_url(video_url)
+    video_id = resolve_short_url(video_url)
 
     if not video_id:
         print(f"  无法解析视频ID: {video_url}")
         return None
-
-    # 如果传入的是短链且没有解析到 iesdouyin URL，构造标准URL
-    if not resolved_url or 'iesdouyin.com' not in resolved_url:
-        resolved_url = SHARE_URL_TEMPLATE.format(video_id=video_id)
 
     print(f"  采集: {video_url}")
     print(f"  视频ID: {video_id}")
@@ -325,44 +197,32 @@ def fetch_douyin_video(video_url):
 
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            html = _fetch_html(video_id)
+            data = _fetch_feed(video_id)
+            parsed = _parse_feed(data, video_id)
 
-            # 优先从 _ROUTER_DATA JSON 解析
-            router_data = _extract_router_data(html)
-            if router_data:
-                parsed = _parse_from_router_data(router_data, video_id)
-                if parsed and (parsed.get('likes', 0) > 0 or parsed.get('title')):
-                    video_data = parsed
-                    break
-
-            # 降级：正则提取
-            parsed = _parse_from_regex(html, video_id)
             if parsed and parsed.get('likes', 0) > 0:
                 video_data = parsed
                 break
 
-            # 如果拿到了标题但数据全0，可能是页面未加载完整，重试
             if parsed and parsed.get('title'):
+                # 有标题但点赞为0，可能是新视频或接口异常
                 video_data = parsed
                 if attempt < MAX_RETRIES:
-                    print(f"  数据全0，第{attempt}次重试（间隔{RETRY_INTERVAL}s）...")
+                    print(f"  数据异常(likes=0)，第{attempt}次重试（间隔{RETRY_INTERVAL}s）...")
                     time.sleep(RETRY_INTERVAL)
                     continue
-                # 重试用完，接受当前数据
                 break
 
-            # 没拿到任何数据
             if attempt < MAX_RETRIES:
                 print(f"  未获取到数据，第{attempt}次重试（间隔{RETRY_INTERVAL}s）...")
                 time.sleep(RETRY_INTERVAL)
             else:
-                print(f"  {MAX_RETRIES}次尝试后仍未获取到数据（页面可能已改版或视频不可用）")
+                print(f"  {MAX_RETRIES}次尝试后仍未获取到数据（接口可能变更或视频不可用）")
 
         except urllib.error.HTTPError as e:
             last_error = f"HTTP {e.code}: {e.reason}"
             print(f"  HTTP错误: {last_error}")
             if e.code == 404:
-                # 视频不存在，不重试
                 break
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_INTERVAL)
@@ -377,9 +237,6 @@ def fetch_douyin_video(video_url):
             print(f"  采集失败: {last_error}")
         return None
 
-    # 补全元数据
-    if not video_data.get('video_id'):
-        video_data['video_id'] = video_id
     video_data['source_url'] = video_url
     video_data['fetch_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -461,7 +318,7 @@ def main():
         sys.exit(1)
 
     urls = sys.argv[1:]
-    print(f"\n开始采集 {len(urls)} 个抖音视频（移动端API方案，无需Chrome）...")
+    print(f"\n开始采集 {len(urls)} 个抖音视频（App API方案，无需Chrome）...")
 
     results = fetch_batch(urls)
 
