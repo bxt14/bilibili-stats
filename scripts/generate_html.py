@@ -70,15 +70,25 @@ def generate_html():
     for video in all_videos:
         douyin_id = video.get('douyin_video_id')
         bvid = video['bvid']
-        if douyin_id:
-            douyin_file = os.path.join(DOUYIN_VIDEO_DIR, f'{douyin_id}.json')
-            if os.path.exists(douyin_file):
-                with open(douyin_file, 'r', encoding='utf-8') as f:
-                    douyin_datasets[bvid] = json.load(f)
+        if not douyin_id:
+            continue
+        douyin_file = os.path.join(DOUYIN_VIDEO_DIR, f'{douyin_id}.json')
+        if os.path.exists(douyin_file):
+            with open(douyin_file, 'r', encoding='utf-8') as f:
+                dydata = json.load(f)
+            # douyin_only 视频（无bvid）用 dy_ 前缀的key，让独立抖音卡片处理
+            if video.get('douyin_only') or not bvid:
+                douyin_datasets[f'dy_{douyin_id}'] = dydata
+            else:
+                douyin_datasets[bvid] = dydata
 
     # 扫描独立抖音视频（没有对应B站视频的抖音内容）
     linked_douyin_ids = set()
     for v in all_videos:
+        # douyin_only 视频（bvid为空）虽然在 all_videos 里登记了 douyin_video_id，
+        # 但它本身就是"独立抖音视频"，应走 standalone 渲染，不应被排除
+        if v.get('douyin_only') or not v.get('bvid'):
+            continue
         did = v.get('douyin_video_id')
         if did:
             linked_douyin_ids.add(str(did))
@@ -119,6 +129,9 @@ def generate_html():
     
     for video in all_videos:
         bvid = video['bvid']
+        # douyin_only 视频（bvid 为空）走独立抖音卡片渲染，不在此处理
+        if video.get('douyin_only') or not bvid:
+            continue
         is_monitoring = video.get('is_monitoring', False)
         
         # 获取最新数据（监控中的从详细数据取，已归档的从基础数据取）
