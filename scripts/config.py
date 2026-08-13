@@ -33,12 +33,6 @@ def _setup_env():
 
 _setup_env()
 
-# ============ Chrome 配置 ============
-CDP_PORT = 9222
-# Chrome profile放项目目录下（/tmp会被系统清理，导致cookie丢失触发反爬）
-CHROME_USER_DATA = os.path.join(BASE_DIR, 'chrome-profile')
-DISPLAY_NUM = 99
-
 # ============ B站采集策略 ============
 HIGH_FREQ_DAYS = 5      # 发布<=5天：每小时
 DAILY_FREQ_DAYS = 30    # 发布5-30天：每天；>30天归档

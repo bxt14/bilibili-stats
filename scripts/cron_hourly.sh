@@ -1,6 +1,6 @@
 #!/bin/bash
 # 小时级采集：B站视频 + 抖音视频 + 生成HTML + git推送
-# 抖音采集已改为移动端分享页API方案，不再依赖Chrome CDP
+# 抖音采集已改为抖音App API(api.amemv.com)方案，纯HTTP无浏览器依赖
 # B站采集使用HTTP API，同样不依赖Chrome
 set -o pipefail
 
@@ -40,7 +40,7 @@ if [ -f "$LOCKFILE" ]; then
     fi
 fi
 
-# 3. 抖音视频采集（移动端API，无需Chrome）
+# 3. 抖音视频采集（App API，纯HTTP）
 timeout 300 python3 -u scripts/fetch_douyin_batch.py --mode hourly >> "$LOG" 2>&1
 
 # 4. 生成HTML

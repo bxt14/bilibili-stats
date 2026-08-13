@@ -1,6 +1,6 @@
 #!/bin/bash
 # 日级采集：粉丝数据 + 日频视频 + 抖音全量 + 生成HTML + git推送
-# 抖音采集已改为移动端分享页API方案，不再依赖Chrome CDP
+# 抖音采集已改为抖音App API(api.amemv.com)方案，纯HTTP无浏览器依赖
 set -o pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -31,7 +31,7 @@ if [ -f "$LOCKFILE" ]; then
     fi
 fi
 
-# 3. 创建锁文件后采集（移动端API，无需Chrome）
+# 3. 创建锁文件后采集（App API，纯HTTP）
 date +%s > "$LOCKFILE"
 timeout 300 python3 -u scripts/fetch_douyin_batch.py --mode daily >> "$LOG" 2>&1
 DOUYIN_EXIT=$?

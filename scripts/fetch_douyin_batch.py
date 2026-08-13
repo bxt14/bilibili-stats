@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-抖音视频批量采集脚本 - 移动端分享页 API 方案
+抖音视频批量采集脚本 - 抖音App API方案
 
-通过 iesdouyin 移动端分享页批量采集视频数据，不依赖 Chrome/Playwright。
+通过抖音App私有API(api.amemv.com)批量采集视频数据，纯HTTP无浏览器依赖。
 核心采集逻辑复用 fetch_douyin_video.py 中的函数。
 
 特性：
@@ -240,7 +240,7 @@ def select_videos_for_collection(active_videos, mode='hourly'):
 
 
 def do_batch(videos_to_collect):
-    """执行批量采集（移动端API，无Chrome依赖）。
+    """执行批量采集（App API，纯HTTP）。
 
     Args:
         videos_to_collect: 要采集的视频列表
@@ -269,7 +269,7 @@ def do_batch(videos_to_collect):
                     success_count += 1
                 else:
                     failed_count += 1
-                    print(f"    X 数据全0（移动端API未返回统计数据，已记录日志）")
+                    print(f"    X 数据全0（App API未返回统计数据，已记录日志）")
             else:
                 failed_count += 1
                 print(f"    X 未能获取视频数据")
@@ -318,7 +318,7 @@ def main():
 
     print(f"\n{'='*60}")
     print(f"抖音视频批量采集: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"模式: {mode}（移动端API方案，无需Chrome）")
+    print(f"模式: {mode}（抖音App API方案，纯HTTP）")
     print(f"{'='*60}")
 
     # 熔断检查
