@@ -4,8 +4,8 @@
 B站账号数据采集脚本
 - 采集账号粉丝数据（每天一次）
 - 采集视频详细数据：
-  - 发布前5天：每小时一次
-  - 发布5-30天：每天一次
+  - 发布前14天：每小时一次
+  - 发布14-30天：每天一次
   - 发布30天后：归档，不再采集
 """
 import requests
@@ -36,8 +36,8 @@ def load_watch_videos():
 
 WATCH_VIDEOS = load_watch_videos()
 
-# 采集策略：前5天每小时，5-30天每天，30天后归档
-HIGH_FREQ_DAYS = 5
+# 采集策略：前14天每小时，14-30天每天，30天后归档
+HIGH_FREQ_DAYS = 14
 DAILY_FREQ_DAYS = 30
 
 
@@ -622,7 +622,7 @@ def sync_all_2026_videos():
 def fetch_videos_data(freq_mode='hourly'):
     """
     采集视频详细数据
-    freq_mode: 'hourly' - 采集前5天视频, 'daily' - 采集5-30天视频, 'all' - 采集所有未归档视频
+    freq_mode: 'hourly' - 采集前14天视频, 'daily' - 采集14-30天视频, 'all' - 采集所有未归档视频
     """
     print("\n" + "=" * 60)
     print(f"采集视频数据 ({freq_mode}): {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -688,7 +688,7 @@ def main(mode='all'):
       'all' - 采集粉丝+小时级视频
       'fans' - 只采集粉丝
       'videos' - 小时级视频采集
-      'videos-daily' - 日频视频采集（5-30天的视频）
+      'videos-daily' - 日频视频采集（14-30天的视频）
       'douyin' - 只同步抖音粉丝数据
     """
     os.makedirs(DATA_DIR, exist_ok=True)

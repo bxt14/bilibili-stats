@@ -34,8 +34,8 @@ def _setup_env():
 _setup_env()
 
 # ============ B站采集策略 ============
-HIGH_FREQ_DAYS = 5      # 发布<=5天：每小时
-DAILY_FREQ_DAYS = 30    # 发布5-30天：每天；>30天归档
+HIGH_FREQ_DAYS = 14     # 发布<=14天：每小时
+DAILY_FREQ_DAYS = 30    # 发布14-30天：每天；>30天归档
 
 # ============ 抖音频率分级 ============
 DOUYIN_HOURLY_MAX_AGE_DAYS = 3
