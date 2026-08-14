@@ -425,82 +425,94 @@ def fetch_account_fans():
     print(f"\n粉丝数据已保存，共 {len(all_data)} 条历史记录")
 
 
+DOUYIN_SEC_UID = 'MS4wLjABAAAA26unzRl4eTG2pAGnxD1pS3kMvjaUIcNxvLGr3VJOiKU'
+DOUYIN_USER_API = f'https://www.iesdouyin.com/web/api/v2/user/info/?sec_uid={DOUYIN_SEC_UID}'
+DOUYIN_WEB_UA = ('Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 '
+                 '(KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36')
+
+
+def fetch_douyin_profile():
+    """通过 iesdouyin web API 直接获取毕导抖音账号数据（粉丝、获赞、作品数）。
+    返回 dict: {fans, likes, works, nickname}，失败返回 None。
+    注意：mplatform_followers_count 精度为千（个位/十位为0），但日级涨粉趋势足够用。
+    """
+    last_err = None
+    for attempt in range(3):
+        try:
+            resp = requests.get(DOUYIN_USER_API, headers={'User-Agent': DOUYIN_WEB_UA}, timeout=15)
+            resp.raise_for_status()
+            data = resp.json()
+            ui = data.get('user_info') or {}
+            fans = ui.get('mplatform_followers_count') or ui.get('follower_count')
+            if fans is None:
+                raise RuntimeError(f'返回中无粉丝字段: {list(ui.keys())}')
+            return {
+                'fans': int(fans),
+                'likes': int(ui.get('total_favorited') or 0),
+                'works': int(ui.get('aweme_count') or 0),
+                'nickname': ui.get('nickname') or '毕导',
+            }
+        except Exception as e:
+            last_err = e
+            time.sleep(2)
+    print(f"  抖音主页API请求失败: {last_err}")
+    return None
+
+
 def fetch_douyin_data():
-    """从飞书多维表格同步抖音粉丝历史数据"""
-    import subprocess
-    
+    """直接从抖音公开主页API采集粉丝/获赞/作品数，并维护本地历史曲线。
+    （旧方案依赖飞书多维表格+爬虫写入，授权容易过期；改为本地方案后日级任务可独立运行。）
+    """
     print("\n" + "=" * 60)
     print(f"同步抖音数据: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 60)
-    
-    # 从飞书多维表格读取抖音历史数据
-    try:
-        result = subprocess.run([
-            'lark-cli', 'base', '+record-list',
-            '--as', 'user',
-            '--base-token', 'CZwHbS7d2alENJsYoJicXOLgnIe',
-            '--table-id', 'tblLKeLyl0Bu65y8',
-            '--limit', '200', '--format', 'json'
-        ], capture_output=True, text=True, timeout=30)
-        
-        if result.returncode == 0:
-            feishu_data = json.loads(result.stdout)
-            records = feishu_data.get('data', {}).get('data', [])
-            
-            growth_list = []
-            for r in records:
-                # Fields: [0]null, [1]作品数, [2]关注数, [3]点赞数, [4]签名, [5]用户ID, [6]粉丝数, [7]链接, [8]昵称, [9]提取时间
-                date_str = r[9][:10] if r[9] else None
-                if date_str and r[6]:
-                    growth_list.append({
-                        'date': date_str,
-                        'fans': int(r[6]),
-                        'likes': int(r[3]),
-                        'works': int(r[1])
-                    })
-            
-            growth_list.sort(key=lambda x: x['date'])
-            
-            # 保存增长数据
-            growth_file = os.path.join(DATA_DIR, 'douyin_growth.json')
-            with open(growth_file, 'w', encoding='utf-8') as f:
-                json.dump(growth_list, f, ensure_ascii=False, indent=2)
-            
-            # 更新douyin_info.json（最新一条）
-            if growth_list:
-                latest = growth_list[-1]
-                prev = growth_list[-2] if len(growth_list) >= 2 else latest
-                fans_add = latest['fans'] - prev['fans']
-                
-                info = {
-                    'name': '毕导',
-                    'platform': '抖音',
-                    'fans': latest['fans'],
-                    'likes': latest['likes'],
-                    'works': latest['works'],
-                    'fans_add': fans_add,
-                    'update_time': datetime.now().strftime('%Y-%m-%d %H:%M')
-                }
-                info_file = os.path.join(DATA_DIR, 'douyin_info.json')
-                with open(info_file, 'w', encoding='utf-8') as f:
-                    json.dump(info, f, ensure_ascii=False, indent=2)
-                
-                print(f"  抖音数据同步成功: {len(growth_list)}条历史记录")
-                print(f"  最新: 粉丝={latest['fans']:,}, 获赞={latest['likes']:,}")
-                print(f"  昨日涨粉: {fans_add:+,}")
-        else:
-            print(f"  飞书读取失败: {result.stderr[:100]}")
-            # 回退到本地数据
-            douyin_file = os.path.join(DATA_DIR, 'douyin_info.json')
-            existing = load_json_safe(douyin_file, {})
-            if existing.get('fans'):
-                print(f"  使用本地数据: 粉丝={existing.get('fans', 0):,}, 获赞={existing.get('likes', 0):,}")
-    except Exception as e:
-        print(f"  抖音数据同步异常: {e}")
-        douyin_file = os.path.join(DATA_DIR, 'douyin_info.json')
-        existing = load_json_safe(douyin_file, {})
+
+    growth_file = os.path.join(DATA_DIR, 'douyin_growth.json')
+    info_file = os.path.join(DATA_DIR, 'douyin_info.json')
+    growth_list = load_json_safe(growth_file, [])
+    if not isinstance(growth_list, list):
+        growth_list = []
+
+    profile = fetch_douyin_profile()
+    today_str = datetime.now().strftime('%Y-%m-%d')
+
+    if profile is None:
+        # API失败时保留旧数据，不破坏曲线
+        existing = load_json_safe(info_file, {})
         if existing.get('fans'):
             print(f"  使用本地数据: 粉丝={existing.get('fans', 0):,}, 获赞={existing.get('likes', 0):,}")
+        return
+
+    # 写入今天一条记录（去重）
+    new_record = {
+        'date': today_str,
+        'fans': profile['fans'],
+        'likes': profile['likes'],
+        'works': profile['works'],
+    }
+    growth_list = [r for r in growth_list if isinstance(r, dict) and r.get('date') != today_str]
+    growth_list.append(new_record)
+    growth_list.sort(key=lambda x: x['date'])
+    save_json(growth_list, growth_file)
+
+    # 计算昨日涨粉
+    prev = growth_list[-2] if len(growth_list) >= 2 else new_record
+    fans_add = new_record['fans'] - prev.get('fans', new_record['fans'])
+
+    info = {
+        'name': profile['nickname'],
+        'platform': '抖音',
+        'fans': profile['fans'],
+        'likes': profile['likes'],
+        'works': profile['works'],
+        'fans_add': fans_add,
+        'update_time': datetime.now().strftime('%Y-%m-%d %H:%M'),
+    }
+    save_json(info, info_file)
+
+    print(f"  抖音数据同步成功: 共{len(growth_list)}条历史记录")
+    print(f"  最新: 粉丝={profile['fans']:,}, 获赞={profile['likes']:,}, 作品={profile['works']}")
+    print(f"  较上条涨粉: {fans_add:+,}")
 
 
 
