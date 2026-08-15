@@ -2,14 +2,14 @@
   "video_id": "7672723440238873906",
   "title": "我带着100个问题，闯进宝洁研发中心。宝洁：？？？ #万万没想到宝洁这么能研发 #宝洁 #毕导 #实验室",
   "author": "毕导",
-  "likes": 34384,
+  "likes": 34442,
   "comments": 167,
-  "collects": 427,
+  "collects": 435,
   "shares": 124,
   "plays": 0,
   "publish_time": "2026-08-12 19:39",
   "source_url": "7672723440238873906",
-  "fetch_time": "2026-08-15 21:03:44",
+  "fetch_time": "2026-08-15 22:04:49",
   "history": [
     {
       "fetch_time": "2026-08-12 21:32:00",
@@ -552,6 +552,14 @@
       "likes": 34384,
       "comments": 167,
       "collects": 427,
+      "shares": 124,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-08-15 22:04:49",
+      "likes": 34442,
+      "comments": 167,
+      "collects": 435,
       "shares": 124,
       "plays": 0
     }
