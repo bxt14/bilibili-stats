@@ -2,14 +2,14 @@
   "video_id": "7672779269915628645",
   "title": "你天天盯着看的东西，竟然这么神奇？！ #iQOONeo11至尊版 #维信诺 #国产好屏 #屏幕 #科普",
   "author": "毕导",
-  "likes": 39928,
+  "likes": 40070,
   "comments": 306,
-  "collects": 1623,
-  "shares": 929,
+  "collects": 1629,
+  "shares": 934,
   "plays": 0,
   "publish_time": "2026-08-13 12:00",
   "source_url": "7672779269915628645",
-  "fetch_time": "2026-08-16 21:04:24",
+  "fetch_time": "2026-08-16 23:03:51",
   "history": [
     {
       "fetch_time": "2026-08-13 15:02:18",
@@ -681,6 +681,22 @@
       "comments": 306,
       "collects": 1623,
       "shares": 929,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-08-16 22:04:12",
+      "likes": 40000,
+      "comments": 306,
+      "collects": 1626,
+      "shares": 930,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-08-16 23:03:51",
+      "likes": 40070,
+      "comments": 306,
+      "collects": 1629,
+      "shares": 934,
       "plays": 0
     }
   ]
