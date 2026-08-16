@@ -2,14 +2,14 @@
   "video_id": "7665560182360902963",
   "title": "刚买的李子丢进水里，直接长出了一层透明壳？？ #科普#欢迎问我任何问题 #知识前沿派对",
   "author": "毕导",
-  "likes": 169191,
-  "comments": 1375,
-  "collects": 17370,
-  "shares": 14151,
+  "likes": 169761,
+  "comments": 1378,
+  "collects": 17431,
+  "shares": 14193,
   "plays": 0,
   "publish_time": "2026-07-23 17:00",
   "source_url": "7665560182360902963",
-  "fetch_time": "2026-08-15 08:34:22",
+  "fetch_time": "2026-08-16 08:36:11",
   "history": [
     {
       "fetch_time": "2026-07-23 17:55:58",
@@ -1409,6 +1409,14 @@
       "comments": 1375,
       "collects": 17370,
       "shares": 14151,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-08-16 08:36:11",
+      "likes": 169761,
+      "comments": 1378,
+      "collects": 17431,
+      "shares": 14193,
       "plays": 0
     }
   ]
