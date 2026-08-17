@@ -2,14 +2,14 @@
   "video_id": "7672779269915628645",
   "title": "你天天盯着看的东西，竟然这么神奇？！ #iQOONeo11至尊版 #维信诺 #国产好屏 #屏幕 #科普",
   "author": "毕导",
-  "likes": 40162,
-  "comments": 306,
-  "collects": 1632,
-  "shares": 937,
+  "likes": 40325,
+  "comments": 308,
+  "collects": 1646,
+  "shares": 943,
   "plays": 0,
   "publish_time": "2026-08-13 12:00",
   "source_url": "7672779269915628645",
-  "fetch_time": "2026-08-17 00:04:21",
+  "fetch_time": "2026-08-17 08:35:25",
   "history": [
     {
       "fetch_time": "2026-08-13 15:02:18",
@@ -705,6 +705,62 @@
       "comments": 306,
       "collects": 1632,
       "shares": 937,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-08-17 01:04:41",
+      "likes": 40205,
+      "comments": 307,
+      "collects": 1634,
+      "shares": 941,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-08-17 02:04:30",
+      "likes": 40228,
+      "comments": 308,
+      "collects": 1635,
+      "shares": 942,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-08-17 03:04:44",
+      "likes": 40249,
+      "comments": 308,
+      "collects": 1639,
+      "shares": 942,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-08-17 04:04:30",
+      "likes": 40260,
+      "comments": 308,
+      "collects": 1639,
+      "shares": 943,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-08-17 05:04:50",
+      "likes": 40274,
+      "comments": 308,
+      "collects": 1639,
+      "shares": 943,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-08-17 07:04:02",
+      "likes": 40291,
+      "comments": 308,
+      "collects": 1641,
+      "shares": 943,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-08-17 08:35:25",
+      "likes": 40325,
+      "comments": 308,
+      "collects": 1646,
+      "shares": 943,
       "plays": 0
     }
   ]
