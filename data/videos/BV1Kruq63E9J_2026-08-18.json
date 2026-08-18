@@ -226,5 +226,29 @@
     "reply": 4564,
     "danmaku": 2072,
     "share": 2871
+  },
+  {
+    "timestamp": 1787051077,
+    "date": "2026-08-18",
+    "time": "19:04",
+    "view": 1283425,
+    "like": 114310,
+    "coin": 10296,
+    "favorite": 13134,
+    "reply": 4565,
+    "danmaku": 2076,
+    "share": 2875
+  },
+  {
+    "timestamp": 1787054658,
+    "date": "2026-08-18",
+    "time": "20:04",
+    "view": 1285915,
+    "like": 114455,
+    "coin": 10309,
+    "favorite": 13162,
+    "reply": 4565,
+    "danmaku": 2081,
+    "share": 2875
   }
 ]
