@@ -136,7 +136,7 @@
     "reply": 420,
     "danmaku": 337,
     "share": 89,
-    "is_monitoring": true,
+    "is_monitoring": false,
     "douyin_video_id": "7665560182360902963",
     "honor": {
       "best_rank": 0,
