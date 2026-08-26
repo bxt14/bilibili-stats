@@ -2,14 +2,14 @@
   "video_id": "7673348711728041252",
   "title": "吵翻天了！飞机放在跑步机上，到底能不能起飞？ #知识前沿派对 #科普 #欢迎问我任何问题 #中国人能飞",
   "author": "毕导",
-  "likes": 196215,
+  "likes": 196232,
   "comments": 10242,
   "collects": 19718,
-  "shares": 29090,
+  "shares": 29092,
   "plays": 0,
   "publish_time": "2026-08-14 17:00",
   "source_url": "7673348711728041252",
-  "fetch_time": "2026-08-26 08:09:58",
+  "fetch_time": "2026-08-26 08:35:48",
   "history": [
     {
       "fetch_time": "2026-08-14 22:31:17",
@@ -1185,6 +1185,14 @@
       "comments": 10242,
       "collects": 19718,
       "shares": 29090,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-08-26 08:35:48",
+      "likes": 196232,
+      "comments": 10242,
+      "collects": 19718,
+      "shares": 29092,
       "plays": 0
     }
   ]
