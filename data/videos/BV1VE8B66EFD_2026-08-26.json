@@ -106,5 +106,41 @@
     "reply": 3684,
     "danmaku": 2870,
     "share": 2354
+  },
+  {
+    "timestamp": 1787706644,
+    "date": "2026-08-26",
+    "time": "09:10",
+    "view": 1334294,
+    "like": 93785,
+    "coin": 8849,
+    "favorite": 16543,
+    "reply": 3689,
+    "danmaku": 2874,
+    "share": 2362
+  },
+  {
+    "timestamp": 1787709909,
+    "date": "2026-08-26",
+    "time": "10:05",
+    "view": 1338439,
+    "like": 93947,
+    "coin": 8865,
+    "favorite": 16578,
+    "reply": 3706,
+    "danmaku": 2883,
+    "share": 2367
+  },
+  {
+    "timestamp": 1787713473,
+    "date": "2026-08-26",
+    "time": "11:04",
+    "view": 1342786,
+    "like": 94145,
+    "coin": 8898,
+    "favorite": 16611,
+    "reply": 3713,
+    "danmaku": 2890,
+    "share": 2373
   }
 ]

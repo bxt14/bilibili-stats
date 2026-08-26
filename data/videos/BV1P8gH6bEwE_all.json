@@ -3670,5 +3670,41 @@
     "reply": 1389,
     "danmaku": 1556,
     "share": 535
+  },
+  {
+    "timestamp": 1787706640,
+    "date": "2026-08-26",
+    "time": "09:10",
+    "view": 837460,
+    "like": 39088,
+    "coin": 2316,
+    "favorite": 5720,
+    "reply": 1389,
+    "danmaku": 1556,
+    "share": 536
+  },
+  {
+    "timestamp": 1787709905,
+    "date": "2026-08-26",
+    "time": "10:05",
+    "view": 837773,
+    "like": 39097,
+    "coin": 2318,
+    "favorite": 5722,
+    "reply": 1390,
+    "danmaku": 1556,
+    "share": 536
+  },
+  {
+    "timestamp": 1787713469,
+    "date": "2026-08-26",
+    "time": "11:04",
+    "view": 838157,
+    "like": 39116,
+    "coin": 2318,
+    "favorite": 5723,
+    "reply": 1390,
+    "danmaku": 1556,
+    "share": 536
   }
 ]
