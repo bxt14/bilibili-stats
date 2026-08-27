@@ -9,7 +9,7 @@
   "plays": 0,
   "publish_time": "2026-08-12 19:39",
   "source_url": "7672723440238873906",
-  "fetch_time": "2026-08-27 04:04:38",
+  "fetch_time": "2026-08-27 08:05:49",
   "history": [
     {
       "fetch_time": "2026-08-12 21:32:00",
@@ -1317,6 +1317,14 @@
     },
     {
       "fetch_time": "2026-08-27 04:04:38",
+      "likes": 36431,
+      "comments": 183,
+      "collects": 654,
+      "shares": 184,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-08-27 08:05:49",
       "likes": 36431,
       "comments": 183,
       "collects": 654,
