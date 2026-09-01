@@ -74,19 +74,44 @@ def fetch_account_info(uid):
 
 
 def fetch_video_detail(bvid):
-    """获取单个视频的详细统计数据"""
+    """获取单个视频的详细统计数据（412风控/非JSON响应时退避重试，最多3次）"""
+    import time as _time
+    full_headers = dict(HEADERS)
+    full_headers.update({
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+        'Origin': 'https://www.bilibili.com',
+    })
+    url = f'https://api.bilibili.com/x/web-interface/view?bvid={bvid}'
+    data = None
+    for attempt in range(3):
+        try:
+            hdr = HEADERS if attempt == 0 else full_headers
+            response = requests.get(url, headers=hdr, timeout=15)
+            if response.status_code == 412:
+                print(f'获取视频详情 {bvid} 触发风控(412)，第{attempt+1}次重试前等待...')
+                _time.sleep(5 * (attempt + 1))
+                continue
+            data = response.json()
+            break
+        except Exception as e:
+            print(f'获取视频详情 {bvid} 第{attempt+1}次请求异常: {e}')
+            if attempt < 2:
+                _time.sleep(5 * (attempt + 1))
+            else:
+                print(f'获取视频详情出错 {bvid}: {e}')
+                return None
+    if data is None:
+        print(f'获取视频详情出错 {bvid}: 412风控重试3次仍失败')
+        return None
     try:
-        url = f'https://api.bilibili.com/x/web-interface/view?bvid={bvid}'
-        response = requests.get(url, headers=HEADERS, timeout=10)
-        data = response.json()
-        
         if data['code'] != 0:
             print(f'获取视频 {bvid} 失败: {data["message"]}')
             return None
-        
+
         video_data = data['data']
         stat = video_data['stat']
-        
+
         # 解析荣誉信息（全站排行榜、每周必看等）
         honor_info = {
             'best_rank': 0,       # 全站排行榜最高排名
@@ -102,11 +127,11 @@ def fetch_video_detail(bvid):
                 honor_info['best_rank'] = stat.get('his_rank', 0)
             elif h_type == 7:  # 热门收录
                 honor_info['hot_pick'] = True
-        
+
         # 如果honor_reply里没有排行榜但his_rank有值
         if honor_info['best_rank'] == 0 and stat.get('his_rank', 0) > 0:
             honor_info['best_rank'] = stat['his_rank']
-        
+
         return {
             'bvid': bvid,
             'aid': video_data['aid'],
@@ -131,7 +156,7 @@ def fetch_video_detail(bvid):
         }
     except Exception as e:
         print(f'获取视频详情出错 {bvid}: {e}')
-    
+
     return None
 
 
