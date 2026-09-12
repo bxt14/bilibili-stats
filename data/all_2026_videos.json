@@ -63,7 +63,7 @@
     "reply": 248,
     "danmaku": 213,
     "share": 42,
-    "is_monitoring": true,
+    "is_monitoring": false,
     "honor": {
       "best_rank": 0,
       "weekly_pick": 0,
