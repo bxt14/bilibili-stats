@@ -2,14 +2,14 @@
   "video_id": "7677793995778542911",
   "title": "为啥海拔越高，气温越低？物理老师和地理老师打起来了！ #科普 #知识前沿派对 #欢迎问我任何问题",
   "author": "毕导",
-  "likes": 170685,
-  "comments": 2955,
-  "collects": 16443,
-  "shares": 20874,
+  "likes": 171111,
+  "comments": 2958,
+  "collects": 16493,
+  "shares": 20944,
   "plays": 0,
   "publish_time": "2026-08-25 17:00",
   "source_url": "7677793995778542911",
-  "fetch_time": "2026-09-14 08:34:07",
+  "fetch_time": "2026-09-15 08:33:44",
   "history": [
     {
       "fetch_time": "2026-08-25 17:18:31",
@@ -1465,6 +1465,14 @@
       "comments": 2955,
       "collects": 16443,
       "shares": 20874,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-09-15 08:33:44",
+      "likes": 171111,
+      "comments": 2958,
+      "collects": 16493,
+      "shares": 20944,
       "plays": 0
     }
   ]
