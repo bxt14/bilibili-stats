@@ -45,6 +45,26 @@ fi
 python3 -u scripts/generate_html.py >> "$LOG" 2>&1
 
 # 5. Git提交推送
+# 安全清理残留 index.lock：仅当锁文件为0字节（操作未完成）且无git进程运行时删除
+safe_clean_lock() {
+    local lock="$PROJ_DIR/.git/index.lock"
+    [ -f "$lock" ] || return 0
+    local size
+    size=$(stat -c%s "$lock" 2>/dev/null || echo "-1")
+    if [ "$size" != "0" ]; then
+        echo "index.lock 非空（${size}字节），存在活跃git操作，保留" >> "$LOG" 2>&1
+        return 1
+    fi
+    if pgrep -x git > /dev/null 2>&1; then
+        echo "index.lock 为0字节但有git进程运行中，保留" >> "$LOG" 2>&1
+        return 1
+    fi
+    rm -f "$lock" 2>/dev/null
+    echo "已清理残留0字节 index.lock（无git进程）" >> "$LOG" 2>&1
+    return 0
+}
+
+safe_clean_lock
 git add .
 if git diff --cached --quiet; then
     echo "no changes" >> "$LOG" 2>&1
