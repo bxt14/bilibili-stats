@@ -9,7 +9,7 @@
   "plays": 0,
   "publish_time": "2026-09-11 13:48",
   "source_url": "https://www.iesdouyin.com/share/video/7684105960566181160/",
-  "fetch_time": "2026-09-23 08:06:26",
+  "fetch_time": "2026-09-23 08:33:17",
   "history": [
     {
       "fetch_time": "2026-09-11 21:57:08",
@@ -1181,6 +1181,14 @@
     },
     {
       "fetch_time": "2026-09-23 08:06:26",
+      "likes": 25510,
+      "comments": 202,
+      "collects": 385,
+      "shares": 111,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-09-23 08:33:17",
       "likes": 25510,
       "comments": 202,
       "collects": 385,
