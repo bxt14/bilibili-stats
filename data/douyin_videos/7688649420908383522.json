@@ -2,14 +2,14 @@
   "video_id": "7688649420908383522",
   "title": "你吃饭的盘子上一直有个诡异的X，但没人能说清它为什么在那 #科普 #欢迎问我任何问题 #知识前沿派对 #光学",
   "author": "毕导",
-  "likes": 176769,
-  "comments": 2222,
-  "collects": 24701,
-  "shares": 26774,
+  "likes": 177049,
+  "comments": 2234,
+  "collects": 24737,
+  "shares": 26815,
   "plays": 0,
   "publish_time": "2026-09-23 16:46",
   "source_url": "7688649420908383522",
-  "fetch_time": "2026-09-27 07:06:01",
+  "fetch_time": "2026-09-27 08:04:56",
   "history": [
     {
       "fetch_time": "2026-09-23 17:03:17",
@@ -737,6 +737,14 @@
       "comments": 2222,
       "collects": 24701,
       "shares": 26774,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-09-27 08:04:56",
+      "likes": 177049,
+      "comments": 2234,
+      "collects": 24737,
+      "shares": 26815,
       "plays": 0
     }
   ]
