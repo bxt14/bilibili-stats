@@ -2,14 +2,14 @@
   "video_id": "7684877754814188843",
   "title": "世界上一半的人每天看见这个现象，却不知道为什么 #科普 #欢迎问我任何问题 #知识前沿派对",
   "author": "毕导",
-  "likes": 103508,
+  "likes": 103656,
   "comments": 675,
-  "collects": 9392,
-  "shares": 8368,
+  "collects": 9405,
+  "shares": 8374,
   "plays": 0,
   "publish_time": "2026-09-13 17:20",
   "source_url": "https://www.iesdouyin.com/share/video/7684877754814188843/",
-  "fetch_time": "2026-09-28 00:04:16",
+  "fetch_time": "2026-09-28 04:04:49",
   "history": [
     {
       "fetch_time": "2026-09-13 17:25:16",
@@ -1393,6 +1393,14 @@
       "comments": 675,
       "collects": 9392,
       "shares": 8368,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-09-28 04:04:49",
+      "likes": 103656,
+      "comments": 675,
+      "collects": 9405,
+      "shares": 8374,
       "plays": 0
     }
   ]
