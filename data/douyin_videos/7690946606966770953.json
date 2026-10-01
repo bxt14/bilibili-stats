@@ -2,14 +2,14 @@
   "video_id": "7690946606966770953",
   "title": "这个量筒里到底有几毫升水？别笑，你也答不上来！ #欢迎问我任何问题 #知识前沿派对",
   "author": "毕导",
-  "likes": 230658,
-  "comments": 3069,
-  "collects": 20856,
-  "shares": 52737,
+  "likes": 233179,
+  "comments": 3099,
+  "collects": 21151,
+  "shares": 53175,
   "plays": 0,
   "publish_time": "2026-09-30 11:00",
   "source_url": "7690946606966770953",
-  "fetch_time": "2026-10-01 07:03:36",
+  "fetch_time": "2026-10-01 08:08:36",
   "history": [
     {
       "fetch_time": "2026-09-30 11:02:05",
@@ -185,6 +185,14 @@
       "comments": 3069,
       "collects": 20856,
       "shares": 52737,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-10-01 08:08:36",
+      "likes": 233179,
+      "comments": 3099,
+      "collects": 21151,
+      "shares": 53175,
       "plays": 0
     }
   ]
