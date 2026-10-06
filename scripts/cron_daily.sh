@@ -49,6 +49,13 @@ python3 -u scripts/generate_html.py >> "$LOG" 2>&1
 safe_clean_lock() {
     local lock="$PROJ_DIR/.git/index.lock"
     [ -f "$lock" ] || return 0
+    # FUSE幻影锁多为0字节且会自消，先等待最多30秒，避免误删真实操作的锁
+    local waited=0
+    while [ -f "$lock" ] && [ "$waited" -lt 30 ]; do
+        sleep 5
+        waited=$((waited+5))
+    done
+    [ -f "$lock" ] || { echo "index.lock 已自消" >> "$LOG" 2>&1; return 0; }
     local size
     size=$(stat -c%s "$lock" 2>/dev/null || echo "-1")
     if [ "$size" != "0" ]; then
@@ -60,16 +67,39 @@ safe_clean_lock() {
         return 1
     fi
     rm -f "$lock" 2>/dev/null
-    echo "已清理残留0字节 index.lock（无git进程）" >> "$LOG" 2>&1
+    echo "已清理残留0字节 index.lock（无git进程，等待${waited}s未自消）" >> "$LOG" 2>&1
     return 0
 }
 
+# 针对FUSE幻影锁的重试封装：命令失败时清理0字节死锁后重试
+git_with_lock_retry() {
+    local max="$1"; shift
+    local attempt=1
+    while [ "$attempt" -le "$max" ]; do
+        if "$@" >> "$LOG" 2>&1; then
+            return 0
+        fi
+        echo "git命令失败(第${attempt}/${max}次): $*" >> "$LOG" 2>&1
+        safe_clean_lock || true
+        attempt=$((attempt+1))
+        [ "$attempt" -le "$max" ] && sleep 10
+    done
+    return 1
+}
+
 safe_clean_lock
-git add .
+git_with_lock_retry 4 git add .
 if git diff --cached --quiet; then
     echo "no changes" >> "$LOG" 2>&1
 else
-    git commit -m "daily: fans+videos+douyin" >> "$LOG" 2>&1
+    git_with_lock_retry 4 git commit -m "daily: fans+videos+douyin"
     git pull --rebase >> "$LOG" 2>&1
-    git push origin main >> "$LOG" 2>&1
+    # push 网络抖动/握手失败重试
+    push_ok=0
+    for i in 1 2 3 4 5; do
+        if git push origin main >> "$LOG" 2>&1; then push_ok=1; break; fi
+        echo "git push 失败(第${i}/5次)" >> "$LOG" 2>&1
+        sleep 15
+    done
+    [ "$push_ok" -eq 1 ] || echo "❌ git push 连续5次失败，需人工补推" >> "$LOG" 2>&1
 fi
