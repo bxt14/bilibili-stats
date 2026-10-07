@@ -71,34 +71,40 @@ safe_clean_lock() {
     return 0
 }
 
-# 针对FUSE幻影锁的重试封装：命令失败时清理0字节死锁后重试
+# 用法: git_with_lock_retry <超时秒> <次数> <git命令...>
+# 关键：git 在 FUSE 上可能挂死(hang)而非快速失败，必须用 timeout 强杀，
+# 否则重试永远等不到返回。超时退出码124/137。
 git_with_lock_retry() {
-    local max="$1"; shift
+    local tmo="$1"; local max="$2"; shift 2
     local attempt=1
     while [ "$attempt" -le "$max" ]; do
-        if "$@" >> "$LOG" 2>&1; then
+        if timeout --signal=KILL "$tmo" "$@" >> "$LOG" 2>&1; then
             return 0
         fi
-        echo "git命令失败(第${attempt}/${max}次): $*" >> "$LOG" 2>&1
+        local rc=$?
+        if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
+            echo "git命令挂死，${tmo}s超时强杀(第${attempt}/${max}次): $*" >> "$LOG" 2>&1
+        else
+            echo "git命令失败 rc=${rc}(第${attempt}/${max}次): $*" >> "$LOG" 2>&1
+        fi
         safe_clean_lock || true
         attempt=$((attempt+1))
-        [ "$attempt" -le "$max" ] && sleep 10
+        [ "$attempt" -le "$max" ] && sleep 8
     done
     return 1
 }
 
 safe_clean_lock
-git_with_lock_retry 4 git add .
-if git diff --cached --quiet; then
+git_with_lock_retry 90 4 git add .
+if timeout 30 git diff --cached --quiet; then
     echo "no changes" >> "$LOG" 2>&1
 else
-    git_with_lock_retry 4 git commit -m "daily: fans+videos+douyin"
-    git pull --rebase >> "$LOG" 2>&1
-    # push 网络抖动/握手失败重试
+    git_with_lock_retry 60 4 git commit -m "daily: fans+videos+douyin"
+    timeout 120 git pull --rebase >> "$LOG" 2>&1
     push_ok=0
     for i in 1 2 3 4 5; do
-        if git push origin main >> "$LOG" 2>&1; then push_ok=1; break; fi
-        echo "git push 失败(第${i}/5次)" >> "$LOG" 2>&1
+        if timeout 120 git push origin main >> "$LOG" 2>&1; then push_ok=1; break; fi
+        echo "git push 失败/超时(第${i}/5次)" >> "$LOG" 2>&1
         sleep 15
     done
     [ "$push_ok" -eq 1 ] || echo "❌ git push 连续5次失败，需人工补推" >> "$LOG" 2>&1
