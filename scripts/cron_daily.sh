@@ -94,8 +94,25 @@ git_with_lock_retry() {
     return 1
 }
 
+# 只暂存具体变更文件，避免 `git add .` 在FUSE上整目录遍历导致挂死。
+# 解析逻辑（含空格/中文、重命名）放在 scripts/git_add_changed.py
+git_add_changed() {
+    timeout 120 python3 scripts/git_add_changed.py
+}
+
 safe_clean_lock
-git_with_lock_retry 90 4 git add .
+git_with_lock_retry_func() {
+    local max="$1"; shift
+    local attempt=1
+    while [ "$attempt" -le "$max" ]; do
+        if "$@" >> "$LOG" 2>&1; then return 0; fi
+        echo "git_add_changed 失败(第${attempt}/${max}次)" >> "$LOG" 2>&1
+        safe_clean_lock || true
+        attempt=$((attempt+1)); [ "$attempt" -le "$max" ] && sleep 8
+    done
+    return 1
+}
+git_with_lock_retry_func 4 git_add_changed
 if timeout 30 git diff --cached --quiet; then
     echo "no changes" >> "$LOG" 2>&1
 else
