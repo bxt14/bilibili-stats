@@ -116,7 +116,7 @@ git_with_lock_retry_func 4 git_add_changed
 if timeout 30 git diff --cached --quiet; then
     echo "no changes" >> "$LOG" 2>&1
 else
-    git_with_lock_retry 60 4 git commit -m "daily: fans+videos+douyin"
+    git_with_lock_retry 60 4 git --no-optional-locks commit -m "daily: fans+videos+douyin"
     timeout 120 git pull --rebase >> "$LOG" 2>&1
     push_ok=0
     for i in 1 2 3 4 5; do
