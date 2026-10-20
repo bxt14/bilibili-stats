@@ -239,6 +239,91 @@ def select_videos_for_collection(active_videos, mode='hourly'):
     return to_collect
 
 
+def _get_last_fetch_time(video_id):
+    """获取视频最后一个采集点的时间。
+
+    优先读 history 最后一条的 fetch_time，回退到文件 mtime。
+    Returns datetime 或 None。
+    """
+    filepath = os.path.join(DOUYIN_VIDEOS_DIR, f'{video_id}.json')
+    if not os.path.exists(filepath):
+        return None
+
+    # 优先读 history 最后一条的 fetch_time
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        history = data.get('history', [])
+        if history:
+            last_fetch_str = history[-1].get('fetch_time', '')
+            if last_fetch_str:
+                for fmt in ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d'):
+                    try:
+                        return datetime.strptime(last_fetch_str, fmt)
+                    except ValueError:
+                        continue
+    except (json.JSONDecodeError, IOError, KeyError):
+        pass
+
+    # 回退：文件 mtime
+    try:
+        return datetime.fromtimestamp(os.path.getmtime(filepath))
+    except OSError:
+        return None
+
+
+# 断档自愈阈值
+GAP_THRESHOLD_HOURLY_SEC = 2 * 3600   # hourly级视频：>2h未采视为断档
+GAP_THRESHOLD_EVERY4H_SEC = 6 * 3600  # every4h级视频：>6h未采视为断档
+
+
+def detect_gap_and_recover(active_videos, to_collect):
+    """检测调度断档，将陈旧视频纳入本次补采。
+
+    当某个活跃视频距上次成功采集超过其分级预期阈值时，说明发生过调度断档，
+    将该视频额外加入本次采集列表（只补一个当前点）。
+
+    Args:
+        active_videos: get_active_videos() 返回的分级字典
+        to_collect: select_videos_for_collection() 已选中的视频列表
+
+    Returns:
+        list: 需要额外补采的视频列表（已去重，可能为空）
+    """
+    already_ids = {v['video_id'] for v in to_collect}
+    recovery = []
+
+    # hourly 级视频：正常应该每次(每小时)都采，>2h 未采视为断档
+    for v in active_videos['hourly']:
+        vid = v['video_id']
+        if vid in already_ids:
+            continue
+        last = _get_last_fetch_time(vid)
+        if last is None:
+            continue
+        gap_hours = (datetime.now() - last).total_seconds() / 3600
+        if gap_hours > GAP_THRESHOLD_HOURLY_SEC / 3600:
+            print(f"  🔧 断档自愈: hourly视频 {vid} 已 {gap_hours:.1f}h 未采集（阈值 {GAP_THRESHOLD_HOURLY_SEC//3600}h），纳入补采")
+            recovery.append(v)
+            already_ids.add(vid)
+
+    # every4h 级视频：正常应该每4小时采一次，>6h 未采视为断档
+    for v in active_videos['every4h']:
+        vid = v['video_id']
+        if vid in already_ids:
+            continue
+        last = _get_last_fetch_time(vid)
+        if last is None:
+            continue
+        gap_hours = (datetime.now() - last).total_seconds() / 3600
+        if gap_hours > GAP_THRESHOLD_EVERY4H_SEC / 3600:
+            print(f"  🔧 断档自愈: every4h视频 {vid} 已 {gap_hours:.1f}h 未采集（阈值 {GAP_THRESHOLD_EVERY4H_SEC//3600}h），纳入补采")
+            recovery.append(v)
+            already_ids.add(vid)
+
+    return recovery
+
+
 def do_batch(videos_to_collect):
     """执行批量采集（App API，纯HTTP）。
 
@@ -334,6 +419,13 @@ def main():
         print(f"  老视频(<={DAILY_MAX_AGE_DAYS}天): {len(active['daily'])}个")
 
     to_collect = select_videos_for_collection(active, mode)
+
+    # 断档自愈：hourly模式下检测陈旧视频，补充采集
+    if mode == 'hourly':
+        recovery = detect_gap_and_recover(active, to_collect)
+        if recovery:
+            print(f"\n🔧 调度断档恢复：额外补采 {len(recovery)} 个视频")
+            to_collect.extend(recovery)
 
     if not to_collect:
         print("本次无需采集（按分级频率，当前时段无待采集视频）")
