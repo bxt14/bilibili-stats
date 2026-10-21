@@ -40,12 +40,47 @@ WATCH_VIDEOS = load_watch_videos()
 HIGH_FREQ_DAYS = 14
 DAILY_FREQ_DAYS = 30
 
+# ── B站 cookie 预热 ──
+# 2026-10-21: B站强制校验 buvid3 等访客 cookie，纯 UA 一律返回 412 反爬 HTML。
+# 用一个模块级 Session 保持 cookie jar，首次请求 bilibili.com 首页自动种 cookie。
+bili_session = requests.Session()
+bili_session.headers.update({
+    'User-Agent': HEADERS['User-Agent'],
+    'Referer': 'https://www.bilibili.com',
+})
+_bili_cookie_warmed = False
+
+
+def warmup_bili_cookie(force=False):
+    """用 Session GET 一次 bilibili.com 首页，拿到 buvid3/b_nut 等访客 cookie。
+    进程内首次调用或 force=True 时才真正请求，避免重复打首页。
+    失败不致命（返回 False），由调用方决定是否降级。
+    """
+    global _bili_cookie_warmed
+    if _bili_cookie_warmed and not force:
+        return True
+    try:
+        resp = bili_session.get('https://www.bilibili.com/', timeout=12)
+        if resp.status_code == 200:
+            cookies = dict(bili_session.cookies)
+            has_buvid = 'buvid3' in cookies or 'b_nut' in cookies
+            print(f'  [cookie预热] 成功 status={resp.status_code} buvid3={"有" if has_buvid else "无"} cookies={list(cookies.keys())}')
+            _bili_cookie_warmed = True
+            return True
+        else:
+            print(f'  [cookie预热] 首页返回 status={resp.status_code}')
+            return False
+    except Exception as e:
+        print(f'  [cookie预热] 异常: {e}')
+        return False
+
 
 def fetch_account_info(uid):
     """获取账号基本信息"""
+    warmup_bili_cookie()
     try:
         url = f'https://api.bilibili.com/x/relation/stat?vmid={uid}'
-        response = requests.get(url, headers=HEADERS, timeout=10)
+        response = bili_session.get(url, headers=HEADERS, timeout=10)
         data = response.json()
         
         if data['code'] != 0:
@@ -54,7 +89,7 @@ def fetch_account_info(uid):
         follower = data['data']['follower']
         
         url2 = f'https://api.bilibili.com/x/web-interface/card?mid={uid}&photo=true'
-        response2 = requests.get(url2, headers=HEADERS, timeout=10)
+        response2 = bili_session.get(url2, headers=HEADERS, timeout=10)
         data2 = response2.json()
         
         if data2['code'] == 0:
@@ -74,7 +109,7 @@ def fetch_account_info(uid):
 
 
 def fetch_video_detail(bvid):
-    """获取单个视频的详细统计数据（412风控/非JSON响应时退避重试，最多3次）"""
+    """获取单个视频的详细统计数据（412风控时 force 重新预热 cookie 再重试，合计最多3次）"""
     import time as _time
     full_headers = dict(HEADERS)
     full_headers.update({
@@ -84,13 +119,15 @@ def fetch_video_detail(bvid):
     })
     url = f'https://api.bilibili.com/x/web-interface/view?bvid={bvid}'
     data = None
+    # 首次预热 cookie（后续 412 时会 force 重新预热）
+    warmup_bili_cookie()
     for attempt in range(3):
         try:
-            hdr = HEADERS if attempt == 0 else full_headers
-            response = requests.get(url, headers=hdr, timeout=15)
+            response = bili_session.get(url, headers=full_headers, timeout=15)
             if response.status_code == 412:
-                print(f'获取视频详情 {bvid} 触发风控(412)，第{attempt+1}次重试前等待...')
-                _time.sleep(5 * (attempt + 1))
+                print(f'获取视频详情 {bvid} 触发风控(412)，force 重新预热 cookie...')
+                warmup_bili_cookie(force=True)
+                _time.sleep(2 * (attempt + 1))
                 continue
             data = response.json()
             break
@@ -282,8 +319,9 @@ def get_video_freq(pub_timestamp):
 
 def fetch_bilibili_account(uid):
     """从B站API获取账号粉丝数和获赞数"""
+    warmup_bili_cookie()
     # 获取粉丝数
-    resp = requests.get(
+    resp = bili_session.get(
         f'https://api.bilibili.com/x/relation/stat?vmid={uid}',
         headers=HEADERS, timeout=10
     )
@@ -293,7 +331,7 @@ def fetch_bilibili_account(uid):
     fans = fans_data['data']['follower']
     
     # 获取获赞数
-    resp2 = requests.get(
+    resp2 = bili_session.get(
         f'https://api.bilibili.com/x/web-interface/card?mid={uid}&photo=true',
         headers=HEADERS, timeout=10
     )
