@@ -273,7 +273,8 @@ def _get_last_fetch_time(video_id):
 
 
 # 断档自愈阈值
-GAP_THRESHOLD_HOURLY_SEC = 2 * 3600   # hourly级视频：>2h未采视为断档
+# 高频任务自2026-10-22起改为每2小时一次：hourly视频正常间隔2h，留1h余量，>3h未采视为断档
+GAP_THRESHOLD_HOURLY_SEC = 3 * 3600   # hourly级视频：>3h未采视为断档
 GAP_THRESHOLD_EVERY4H_SEC = 6 * 3600  # every4h级视频：>6h未采视为断档
 
 

@@ -34,10 +34,11 @@ def _setup_env():
 _setup_env()
 
 # ============ B站采集策略 ============
-HIGH_FREQ_DAYS = 14     # 发布<=14天：每小时
+HIGH_FREQ_DAYS = 14     # 发布<=14天：高频，每2小时（2026-10-22起，原为每小时）
 DAILY_FREQ_DAYS = 30    # 发布14-30天：每天；>30天归档
 
 # ============ 抖音频率分级 ============
+# 注：hourly 分级名称沿用，实际自2026-10-22起随高频任务每2小时采一次
 DOUYIN_HOURLY_MAX_AGE_DAYS = 3
 DOUYIN_EVERY4H_MAX_AGE_DAYS = 14
 DOUYIN_DAILY_MAX_AGE_DAYS = 30

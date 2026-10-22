@@ -36,7 +36,7 @@ def load_watch_videos():
 
 WATCH_VIDEOS = load_watch_videos()
 
-# 采集策略：前14天每小时，14-30天每天，30天后归档
+# 采集策略：前14天每2小时（2026-10-22起），14-30天每天，30天后归档
 HIGH_FREQ_DAYS = 14
 DAILY_FREQ_DAYS = 30
 
@@ -716,14 +716,14 @@ def fetch_videos_data(freq_mode='hourly'):
                 continue
             elif freq == 'daily' and freq_mode == 'hourly':
                 print(f"  视频: {video_info['title']}")
-                print(f"  发布: {days_since_publish:.1f}天前 (日频，跳过小时级采集)")
+                print(f"  发布: {days_since_publish:.1f}天前 (日频，跳过每2小时高频采集)")
                 continue
             elif freq == 'hourly' and freq_mode == 'daily':
                 print(f"  视频: {video_info['title']}")
-                print(f"  发布: {days_since_publish:.1f}天前 (小时级，由整点任务采集)")
+                print(f"  发布: {days_since_publish:.1f}天前 (高频2h级，由每2小时任务采集)")
                 continue
             
-            freq_label = '每小时' if freq == 'hourly' else '每天'
+            freq_label = '每2小时' if freq == 'hourly' else '每天'
             print(f"  视频: {video_info['title']}")
             print(f"  发布: {days_since_publish:.1f}天前 ({freq_label}采集)")
             print(f"  播放: {video_info['view']:,} | 点赞: {video_info['like']:,} | 投币: {video_info['coin']:,}")
