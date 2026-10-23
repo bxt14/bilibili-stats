@@ -63,7 +63,7 @@
     "danmaku": 131,
     "share": 33,
     "days_published": 0,
-    "is_monitoring": true,
+    "is_monitoring": false,
     "honor": {
       "best_rank": 0,
       "weekly_pick": 0,
