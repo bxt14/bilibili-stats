@@ -1,0 +1,86 @@
+[
+  {
+    "timestamp": 1793074143,
+    "date": "2026-10-27",
+    "time": "12:09",
+    "view": 2101609,
+    "like": 147085,
+    "coin": 33888,
+    "favorite": 26069,
+    "reply": 6688,
+    "danmaku": 6160,
+    "share": 4768
+  },
+  {
+    "timestamp": 1793081582,
+    "date": "2026-10-27",
+    "time": "14:13",
+    "view": 2103654,
+    "like": 147218,
+    "coin": 33926,
+    "favorite": 26093,
+    "reply": 6692,
+    "danmaku": 6165,
+    "share": 4772
+  },
+  {
+    "timestamp": 1793088566,
+    "date": "2026-10-27",
+    "time": "16:09",
+    "view": 2104675,
+    "like": 147275,
+    "coin": 33942,
+    "favorite": 26106,
+    "reply": 6696,
+    "danmaku": 6171,
+    "share": 4773
+  },
+  {
+    "timestamp": 1793093413,
+    "date": "2026-10-27",
+    "time": "17:30",
+    "view": 2105424,
+    "like": 147309,
+    "coin": 33949,
+    "favorite": 26115,
+    "reply": 6698,
+    "danmaku": 6172,
+    "share": 4776
+  },
+  {
+    "timestamp": 1793096585,
+    "date": "2026-10-27",
+    "time": "18:23",
+    "view": 2106219,
+    "like": 147344,
+    "coin": 33965,
+    "favorite": 26127,
+    "reply": 6701,
+    "danmaku": 6172,
+    "share": 4778
+  },
+  {
+    "timestamp": 1793103784,
+    "date": "2026-10-27",
+    "time": "20:23",
+    "view": 2108413,
+    "like": 147465,
+    "coin": 34004,
+    "favorite": 26153,
+    "reply": 6707,
+    "danmaku": 6176,
+    "share": 4782
+  },
+  {
+    "timestamp": 1793110982,
+    "date": "2026-10-27",
+    "time": "22:23",
+    "view": 2110821,
+    "like": 147590,
+    "coin": 34019,
+    "favorite": 26180,
+    "reply": 6711,
+    "danmaku": 6180,
+    "share": 4787
+  }
+]

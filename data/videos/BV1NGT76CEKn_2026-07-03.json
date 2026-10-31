@@ -1,0 +1,122 @@
+[
+  {
+    "timestamp": 1783059609,
+    "date": "2026-07-03",
+    "time": "14:20",
+    "view": 136928,
+    "like": 15127,
+    "coin": 1144,
+    "favorite": 1803,
+    "reply": 586,
+    "danmaku": 624,
+    "share": 337
+  },
+  {
+    "timestamp": 1783062002,
+    "date": "2026-07-03",
+    "time": "15:00",
+    "view": 150972,
+    "like": 16253,
+    "coin": 1203,
+    "favorite": 1943,
+    "reply": 619,
+    "danmaku": 653,
+    "share": 363
+  },
+  {
+    "timestamp": 1783065603,
+    "date": "2026-07-03",
+    "time": "16:00",
+    "view": 180595,
+    "like": 18224,
+    "coin": 1341,
+    "favorite": 2190,
+    "reply": 679,
+    "danmaku": 737,
+    "share": 426
+  },
+  {
+    "timestamp": 1783069202,
+    "date": "2026-07-03",
+    "time": "17:00",
+    "view": 206706,
+    "like": 20089,
+    "coin": 1482,
+    "favorite": 2396,
+    "reply": 740,
+    "danmaku": 832,
+    "share": 470
+  },
+  {
+    "timestamp": 1783072802,
+    "date": "2026-07-03",
+    "time": "18:00",
+    "view": 234864,
+    "like": 22097,
+    "coin": 1639,
+    "favorite": 2600,
+    "reply": 788,
+    "danmaku": 922,
+    "share": 531
+  },
+  {
+    "timestamp": 1783076402,
+    "date": "2026-07-03",
+    "time": "19:00",
+    "view": 289272,
+    "like": 25919,
+    "coin": 1838,
+    "favorite": 2938,
+    "reply": 864,
+    "danmaku": 1111,
+    "share": 597
+  },
+  {
+    "timestamp": 1783080003,
+    "date": "2026-07-03",
+    "time": "20:00",
+    "view": 337989,
+    "like": 28942,
+    "coin": 2059,
+    "favorite": 3219,
+    "reply": 938,
+    "danmaku": 1234,
+    "share": 658
+  },
+  {
+    "timestamp": 1783083602,
+    "date": "2026-07-03",
+    "time": "21:00",
+    "view": 379096,
+    "like": 31816,
+    "coin": 2232,
+    "favorite": 3519,
+    "reply": 990,
+    "danmaku": 1352,
+    "share": 711
+  },
+  {
+    "timestamp": 1783087203,
+    "date": "2026-07-03",
+    "time": "22:00",
+    "view": 418300,
+    "like": 34433,
+    "coin": 2394,
+    "favorite": 3809,
+    "reply": 1025,
+    "danmaku": 1429,
+    "share": 752
+  },
+  {
+    "timestamp": 1783090802,
+    "date": "2026-07-03",
+    "time": "23:00",
+    "view": 490036,
+    "like": 37159,
+    "coin": 2580,
+    "favorite": 4372,
+    "reply": 1060,
+    "danmaku": 1517,
+    "share": 808
+  }
+]

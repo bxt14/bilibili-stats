@@ -1,0 +1,38 @@
+[
+  {
+    "timestamp": 1793463784,
+    "date": "2026-11-01",
+    "time": "00:23",
+    "view": 4357095,
+    "like": 244226,
+    "coin": 12851,
+    "favorite": 31549,
+    "reply": 3499,
+    "danmaku": 3433,
+    "share": 2043
+  },
+  {
+    "timestamp": 1793470984,
+    "date": "2026-11-01",
+    "time": "02:23",
+    "view": 4422565,
+    "like": 248757,
+    "coin": 13122,
+    "favorite": 31983,
+    "reply": 3540,
+    "danmaku": 3487,
+    "share": 2090
+  },
+  {
+    "timestamp": 1793478185,
+    "date": "2026-11-01",
+    "time": "04:23",
+    "view": 4450841,
+    "like": 250477,
+    "coin": 13311,
+    "favorite": 32151,
+    "reply": 3571,
+    "danmaku": 3501,
+    "share": 2126
+  }
+]

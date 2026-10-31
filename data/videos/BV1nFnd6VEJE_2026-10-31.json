@@ -1,0 +1,110 @@
+[
+  {
+    "timestamp": 1793377384,
+    "date": "2026-10-31",
+    "time": "00:23",
+    "view": 610348,
+    "like": 46296,
+    "coin": 2297,
+    "favorite": 6533,
+    "reply": 1945,
+    "danmaku": 1400,
+    "share": 956
+  },
+  {
+    "timestamp": 1793384584,
+    "date": "2026-10-31",
+    "time": "02:23",
+    "view": 614865,
+    "like": 46669,
+    "coin": 2308,
+    "favorite": 6594,
+    "reply": 1954,
+    "danmaku": 1405,
+    "share": 956
+  },
+  {
+    "timestamp": 1793391784,
+    "date": "2026-10-31",
+    "time": "04:23",
+    "view": 616392,
+    "like": 46780,
+    "coin": 2318,
+    "favorite": 6605,
+    "reply": 1966,
+    "danmaku": 1407,
+    "share": 956
+  },
+  {
+    "timestamp": 1793398984,
+    "date": "2026-10-31",
+    "time": "06:23",
+    "view": 617234,
+    "like": 46818,
+    "coin": 2318,
+    "favorite": 6606,
+    "reply": 1968,
+    "danmaku": 1408,
+    "share": 957
+  },
+  {
+    "timestamp": 1793406185,
+    "date": "2026-10-31",
+    "time": "08:23",
+    "view": 621078,
+    "like": 47056,
+    "coin": 2324,
+    "favorite": 6667,
+    "reply": 1976,
+    "danmaku": 1410,
+    "share": 959
+  },
+  {
+    "timestamp": 1793413385,
+    "date": "2026-10-31",
+    "time": "10:23",
+    "view": 628988,
+    "like": 47542,
+    "coin": 2346,
+    "favorite": 6739,
+    "reply": 1989,
+    "danmaku": 1418,
+    "share": 971
+  },
+  {
+    "timestamp": 1793420584,
+    "date": "2026-10-31",
+    "time": "12:23",
+    "view": 638541,
+    "like": 48126,
+    "coin": 2372,
+    "favorite": 6819,
+    "reply": 2001,
+    "danmaku": 1433,
+    "share": 979
+  },
+  {
+    "timestamp": 1793427785,
+    "date": "2026-10-31",
+    "time": "14:23",
+    "view": 648179,
+    "like": 48719,
+    "coin": 2395,
+    "favorite": 6899,
+    "reply": 2008,
+    "danmaku": 1448,
+    "share": 983
+  },
+  {
+    "timestamp": 1793434985,
+    "date": "2026-10-31",
+    "time": "16:23",
+    "view": 656498,
+    "like": 49220,
+    "coin": 2413,
+    "favorite": 6972,
+    "reply": 2024,
+    "danmaku": 1456,
+    "share": 987
+  }
+]

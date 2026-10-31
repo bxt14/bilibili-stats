@@ -1,0 +1,29 @@
+# Temp files
+tmp_*
+*.log
+*.bak
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+
+# Orphaned images
+image_*
+
+# Backup archives
+repo_backup_*.tar.gz
+
+# Chrome profile (本地浏览器状态，不入库)
+chrome-profile/
+
+# 采集锁
+logs/*.lock
+logs/douyin_circuit_open_until

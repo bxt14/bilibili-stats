@@ -1,0 +1,32 @@
+[
+  {
+    "timestamp": 1779465601,
+    "date": "2026-05-23",
+    "time": "00:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7936003
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2221288
+      }
+    }
+  },
+  {
+    "timestamp": 1779494402,
+    "date": "2026-05-23",
+    "time": "08:00",
+    "accounts": {
+      "bidao": {
+        "name": "毕导",
+        "fans": 7936190
+      },
+      "erjiedao": {
+        "name": "毕的二阶导",
+        "fans": 2221412
+      }
+    }
+  }
+]
