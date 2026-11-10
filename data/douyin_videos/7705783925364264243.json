@@ -2,14 +2,14 @@
   "video_id": "7705783925364264243",
   "title": "被几百条评论纠正后，吓得我连夜算了一下 #知识前沿派对 #欢迎问我任何问题",
   "author": "毕导",
-  "likes": 92416,
-  "comments": 1356,
-  "collects": 5929,
-  "shares": 6957,
+  "likes": 93413,
+  "comments": 1366,
+  "collects": 5996,
+  "shares": 7039,
   "plays": 0,
   "publish_time": "2026-11-09 11:00",
   "source_url": "https://v.douyin.com/sGXs0SuJjAU/",
-  "fetch_time": "2026-11-11 00:23:06",
+  "fetch_time": "2026-11-11 02:23:05",
   "history": [
     {
       "fetch_time": "2026-11-09 12:27:40",
@@ -169,6 +169,14 @@
       "comments": 1356,
       "collects": 5929,
       "shares": 6957,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-11-11 02:23:05",
+      "likes": 93413,
+      "comments": 1366,
+      "collects": 5996,
+      "shares": 7039,
       "plays": 0
     }
   ]
