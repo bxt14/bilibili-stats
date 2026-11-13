@@ -2,14 +2,14 @@
   "video_id": "7706856211199263675",
   "title": "我发现人类在花钱的时候，数学水平会自动下降 #灵光 #省钱 #小妙招#人生有底气",
   "author": "毕导",
-  "likes": 59873,
+  "likes": 59908,
   "comments": 313,
-  "collects": 2416,
-  "shares": 2974,
+  "collects": 2420,
+  "shares": 2976,
   "plays": 0,
   "publish_time": "2026-11-12 17:01",
   "source_url": "https://v.douyin.com/ZWxFBAkTyas/",
-  "fetch_time": "2026-11-14 04:23:09",
+  "fetch_time": "2026-11-14 06:23:08",
   "history": [
     {
       "fetch_time": "2026-11-12 20:49:15",
@@ -153,6 +153,14 @@
       "comments": 313,
       "collects": 2416,
       "shares": 2974,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-11-14 06:23:08",
+      "likes": 59908,
+      "comments": 313,
+      "collects": 2420,
+      "shares": 2976,
       "plays": 0
     }
   ]
