@@ -9,7 +9,7 @@
   "plays": 0,
   "publish_time": "2026-11-10 20:04",
   "source_url": "https://v.douyin.com/ry5TmHP3EdE/",
-  "fetch_time": "2026-11-16 08:17:11",
+  "fetch_time": "2026-11-16 08:23:08",
   "history": [
     {
       "fetch_time": "2026-11-10 20:15:20",
@@ -589,6 +589,14 @@
     },
     {
       "fetch_time": "2026-11-16 08:17:11",
+      "likes": 46727,
+      "comments": 403,
+      "collects": 1243,
+      "shares": 578,
+      "plays": 0
+    },
+    {
+      "fetch_time": "2026-11-16 08:23:08",
       "likes": 46727,
       "comments": 403,
       "collects": 1243,
