@@ -5547,21 +5547,21 @@
     }
   },
   {
-    "timestamp": 1795306621,
+    "timestamp": 1795340258,
     "date": "2026-11-22",
-    "time": "08:17",
+    "time": "17:37",
     "accounts": {
       "bidao": {
         "name": "毕导",
-        "fans": 8457797,
-        "likes": 38836268,
+        "fans": 8458675,
+        "likes": 38838033,
         "works": 176
       },
       "erjiedao": {
         "name": "毕的二阶导",
-        "fans": 2657391,
-        "likes": 21604317,
-        "works": 172
+        "fans": 2658516,
+        "likes": 21614441,
+        "works": 173
       }
     }
   }
