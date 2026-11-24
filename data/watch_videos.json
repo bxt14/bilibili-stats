@@ -1,9 +1,23 @@
 [
   {
-    "bvid": "BV1LwyVzsETP",
-    "title": "同样是牛奶，凭啥一个保15天，一个能放三个月？",
+    "bvid": "BV1nFnd6VEJE",
+    "title": "大科学家越来越少，这是错觉吗？除了牛顿你还知道谁",
     "owner": "毕的二阶导",
-    "days_published": 1.6,
-    "freq": "hourly"
+    "days_published": 28.6,
+    "freq": "daily"
+  },
+  {
+    "bvid": "BV15vxc6bEZz",
+    "title": "观众每天都在问我些什么问题？看完我整个人都通透了",
+    "owner": "毕的二阶导",
+    "days_published": 24.9,
+    "freq": "daily"
+  },
+  {
+    "bvid": "BV1444B6pE71",
+    "title": "被几百条评论纠正后，吓得我连夜算了一下……",
+    "owner": "毕的二阶导",
+    "days_published": 17.6,
+    "freq": "daily"
   }
 ]
