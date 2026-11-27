@@ -218,6 +218,7 @@ def generate_html():
             <div class="stat-pill">❤ {format_number(latest['like'])}</div>
             <div class="stat-pill">🪙 {format_number(latest['coin'])}</div>
             <div class="stat-pill">⭐ {format_number(latest['favorite'])}</div>
+            <div class="stat-pill">💬 {format_number(latest.get('danmaku', 0))}</div>
           </div>
           {douyin_stats_html}
           {growth}
